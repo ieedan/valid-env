@@ -8,10 +8,5 @@ export type Public = {
 }
 
 export type Private = {
-	SOMETHING: string,
-	ANYTHING: string,
-	NUMBER: number,
-	WHAT: string,
-	WHO: number,
-	WHERE: string
+	SOMETHING: string
 }

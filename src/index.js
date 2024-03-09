@@ -151,6 +151,7 @@ export default function parse(path, options) {
 	const keys = new Map();
 	let isDecorator = false;
 	let isValue = false;
+	let isComment = false;
 	let current = "";
 	let currentKey = "";
 
@@ -158,6 +159,8 @@ export default function parse(path, options) {
 		const char = content[i];
 		if (char == "@" && !isValue) {
 			isDecorator = true;
+		} else if (char == "#" && !isValue && !isDecorator) {
+			isComment = true;
 		} else if (char == " " || char == "\n" || char == "\r" || i == content.length - 1) {
 			if (isDecorator) {
 				currentDecorators.push(current);
@@ -204,7 +207,9 @@ export default function parse(path, options) {
 				currentDecorators = [];
 				currentKey = "";
 				isValue = false;
-			}
+			} else if (isComment) {
+				isComment = false;
+			} 
 
 			current = "";
 		} else if (char === "=" && !isValue && !isDecorator) {
