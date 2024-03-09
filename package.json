@@ -1,0 +1,27 @@
+{
+  "name": "env-parser",
+  "version": "1.0.0",
+  "description": "A .env parser built to try my hand in parsing.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ieedan/env-parser.git"
+  },
+  "keywords": [
+    "parsing",
+    ".env"
+  ],
+  "author": "Aidan Bleser",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ieedan/env-parser/issues"
+  },
+  "homepage": "https://github.com/ieedan/env-parser#readme",
+  "type": "module",
+  "dependencies": {
+    "fs-extra": "^11.2.0"
+  }
+}
