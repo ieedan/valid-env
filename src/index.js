@@ -138,6 +138,7 @@ export type Private = {
  *
  * @param {string} path
  * @param {import('.').ParseOptions} options
+ * @returns {void}
  */
 export default function parse(path, options) {
 	if (!fs.existsSync(path)) {
@@ -222,8 +223,6 @@ export default function parse(path, options) {
 
 		i++;
 	}
-
-	console.log(keys)
 
 	writeToOutput(keys, options.outputFile);
 }
