@@ -1,1 +1,5 @@
+node_modules
+!.env.example
+output
 /output
+/node_modules
