@@ -1,4 +1,3 @@
-@ -1,30 +0,0 @@
 # valid-env
 A .env file parser that supports decorators to allow for data validation and other functions.
 
@@ -6,17 +5,17 @@ A .env file parser that supports decorators to allow for data validation and oth
 
 ### Decorator enhanced
 Supports decorators like 
-- `@public` Will put variables under the public object
-- `@private` Will put variables under the private object (default)
+- `@public` Will put variables under the public scope
+- `@private` Will put variables under the private scope
 - `@max()` You can provide this decorator with a number to validate the length of a string or size of a number
 - `@min()` You can provide this decorator with a number to validate the length of a string or size of a number
 
 Examples:
 
 ```ruby
-# goes to private
+# private scope
 SOMETHING="nothing"
-# goes to public
+# public scope
 @public
 NOTHING="something"
 ```
