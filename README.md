@@ -1,3 +1,4 @@
+@ -1,30 +0,0 @@
 # valid-env
 A .env file parser that supports decorators to allow for data validation and other functions.
 
