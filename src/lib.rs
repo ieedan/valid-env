@@ -73,7 +73,7 @@ pub fn parse(content: &str) -> ParseResult {
             is_value = true;
             current_key = current.clone();
             current = String::new();
-        } else if c == '"' && is_value {
+        } else if c == '"' && is_value && !i == len - 1 {
             is_string = !is_string;
             if is_array {
                 current.push_str(&c.to_string());
@@ -83,6 +83,10 @@ pub fn parse(content: &str) -> ParseResult {
         } else if c == ']' && is_value && is_array && !is_string {
             is_array = false;
         } else if (c == '\n' && !is_string && !is_array) || i == len - 1 {
+            if i == len - 1 {
+                current.push_str(&c.to_string());
+            }
+
             if is_decorator {
                 current_decorators.push(current.trim().to_owned());
                 is_decorator = false;
@@ -214,6 +218,22 @@ fn coerce_value_type(val: &str) -> ValueType {
             return ValueType::StringArray(values);
         }
 
-        return ValueType::String(val.to_owned());
+        return ValueType::String(trim_quotes(val));
     };
+}
+
+fn trim_quotes(val: &str) -> String {
+    let mut trimmed = String::from(val);
+
+    let quote_start = val.find("\"");
+
+    if let Some(start) = quote_start {
+        let quote_end = val.rfind("\"");
+
+        if let Some(end) = quote_end {
+            trimmed = String::from(&val[start + 1..end]);
+        }
+    }
+
+    trimmed
 }
