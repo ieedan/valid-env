@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use crate::decorators::{self, DecoratorValidationResult};
 use crate::util::trim_quotes;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct FilePosition {
     pub line: u32,
     pub column: u32,

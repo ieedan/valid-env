@@ -3,4 +3,12 @@ pub mod util;
 pub mod parsing;
 
 #[cfg(test)]
-pub mod tests;
+mod tests {
+    mod value_types;
+    mod decorators {
+        mod min;
+        mod max;
+        mod public;
+        mod private;
+    }
+}
