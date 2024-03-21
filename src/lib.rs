@@ -1,8 +1,23 @@
 use std::collections::HashMap;
 
 use decorators::{DecoratorValidationResult, DecoratorValue};
+use util::trim_quotes;
 
 pub mod decorators;
+
+pub mod util;
+
+#[derive(Debug, Clone)]
+pub struct FilePosition {
+    pub line: u32,
+    pub column: u32,
+}
+
+impl FilePosition {
+    pub fn new() -> Self {
+        FilePosition { line: 1, column: 1 }
+    }
+}
 
 #[derive(Debug, Clone)]
 pub enum Scope {
@@ -28,23 +43,36 @@ pub struct Key {
 }
 
 #[derive(Debug, Clone)]
+pub struct ParseError {
+    pub message: String,
+    pub position: FilePosition,
+}
+
+impl ParseError {
+    pub fn new(msg: String, pos: FilePosition) -> Self {
+        ParseError {
+            message: msg,
+            position: pos,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct ParseResult {
     pub keys: Vec<Key>,
+    pub valid: bool,
+    pub errors: Vec<ParseError>,
+    pub warnings: Vec<ParseError>,
 }
 
 impl ParseResult {
-    pub fn valid(&self) -> bool {
-        for key in self.keys.clone() {
-            if !key.valid {
-                return false;
-            }
-        }
-
-        true
-    }
-
     fn new() -> Self {
-        ParseResult { keys: Vec::new() }
+        ParseResult {
+            keys: Vec::new(),
+            valid: true,
+            errors: Vec::new(),
+            warnings: Vec::new(),
+        }
     }
 }
 
@@ -56,24 +84,33 @@ pub fn parse(content: &str) -> ParseResult {
     let chars: Vec<char> = content.trim().chars().collect();
     let len = chars.len();
 
+    let mut position = FilePosition::new();
+
     let mut is_value = false;
     let mut is_comment = false;
     let mut is_array = false;
     let mut is_decorator = false;
     let mut is_string = false;
 
-    let mut current_key = String::new();
+    let mut current_key = (String::new(), FilePosition::new());
     let mut current = String::new();
-    let mut current_decorators: Vec<String> = Vec::new();
+    let mut current_decorators: Vec<(String, FilePosition)> = Vec::new();
 
-    for (i, c) in chars.into_iter().enumerate() {
-        if c == '@' && !is_value && !is_comment {
+    let mut keys: HashMap<String, Key> = HashMap::new();
+
+    for (i, c) in chars.to_owned().into_iter().enumerate() {
+        if c == '@' && !is_value && !is_comment && !is_decorator {
             is_decorator = true;
         } else if c == '=' && !is_decorator && !is_array && !is_value && !is_comment && !is_string {
             is_value = true;
-            current_key = current.clone();
+            let mut key_position = position.to_owned();
+            key_position.column = key_position
+                .column
+                .checked_sub(current.len() as u32)
+                .unwrap();
+            current_key = (current.clone(), key_position);
             current = String::new();
-        } else if c == '"' && is_value && !i == len - 1 {
+        } else if c == '"' && is_value {
             is_string = !is_string;
             if is_array {
                 current.push_str(&c.to_string());
@@ -82,13 +119,14 @@ pub fn parse(content: &str) -> ParseResult {
             is_array = true;
         } else if c == ']' && is_value && is_array && !is_string {
             is_array = false;
-        } else if (c == '\n' && !is_string && !is_array) || i == len - 1 {
-            if i == len - 1 {
-                current.push_str(&c.to_string());
-            }
+        } else if !is_comment {
+            // no need to add comments to current
+            current.push_str(&c.to_string());
+        }
 
+        if (c == '\n' && !is_string && !is_array) || i == len - 1 {
             if is_decorator {
-                current_decorators.push(current.trim().to_owned());
+                current_decorators.push((current.trim().to_owned(), position.to_owned()));
                 is_decorator = false;
             } else if is_comment {
                 is_comment = false;
@@ -99,7 +137,7 @@ pub fn parse(content: &str) -> ParseResult {
 
                 let value_type = coerce_value_type(&current.trim());
 
-                for dec in current_decorators {
+                for (dec, pos) in current_decorators {
                     let start_parens = dec.find('(');
                     let decorator_info = match start_parens {
                         Some(index) => {
@@ -130,36 +168,58 @@ pub fn parse(content: &str) -> ParseResult {
                             }
                         }
                         None => {
-                            println!("WARN: invalid decorator '{}'", decorator_info.0);
+                            let error_message = format!("Invalid decorator '{}'", decorator_info.0);
+                            result.errors.push(ParseError::new(error_message, pos));
                         }
                     }
                 }
 
                 let key = Key {
-                    key: current_key.to_owned(),
+                    key: current_key.0.to_owned(),
                     scope: scope,
                     valid: errors.len() == 0,
                     value: value_type,
                     errors: errors,
                 };
 
-                result.keys.push(key);
+                if keys.contains_key(&key.key) {
+                    let error_message = format!("Duplicate key '{}'", key.key);
+                    result
+                        .warnings
+                        .push(ParseError::new(error_message, current_key.1.to_owned()));
+                }
 
+                keys.insert(key.key.to_owned(), key);
+
+                current_key = (String::new(), FilePosition::new());
                 current_decorators = Vec::new();
                 is_value = false;
             }
 
             // clear no matter what
             current = String::new();
-        } else if !is_comment {
-            // no need to add comments to current
-            current.push_str(&c.to_string());
         }
+
+        if c == '\n' {
+            position.line += 1;
+            position.column = 1;
+        } else {
+            position.column += 1;
+        }
+    }
+
+    for (_, v) in keys {
+        if !v.valid {
+            result.valid = false;
+        }
+
+        result.keys.push(v);
     }
 
     result
 }
 
+/// Coerces the string value into a value type
 fn coerce_value_type(val: &str) -> ValueType {
     // get value type
     if val.parse::<f64>().is_ok() {
@@ -220,20 +280,4 @@ fn coerce_value_type(val: &str) -> ValueType {
 
         return ValueType::String(trim_quotes(val));
     };
-}
-
-fn trim_quotes(val: &str) -> String {
-    let mut trimmed = String::from(val);
-
-    let quote_start = val.find("\"");
-
-    if let Some(start) = quote_start {
-        let quote_end = val.rfind("\"");
-
-        if let Some(end) = quote_end {
-            trimmed = String::from(&val[start + 1..end]);
-        }
-    }
-
-    trimmed
 }
