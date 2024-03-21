@@ -26,7 +26,7 @@ impl DecoratorValue {
 
 pub enum DecoratorValidationResult {
     Ok,
-    Error(String),
+    Error(Vec<String>),
 }
 
 pub struct Decorator {
@@ -60,7 +60,7 @@ pub fn get() -> HashMap<String, Decorator> {
                     DecoratorValue::String(v) => {
                         let error_message = format!("'{v}' is not valid for decorator type 'min'. 'min' requires a number value.");
 
-                        return DecoratorValidationResult::Error(error_message);
+                        return DecoratorValidationResult::Error(vec![error_message]);
                     }
                     DecoratorValue::Integer(dec_value) => match value {
                         ValueType::Number(v) => match v.cmp(&dec_value) {
@@ -68,7 +68,7 @@ pub fn get() -> HashMap<String, Decorator> {
                                 let error_message =
                                     format!("{v} is too small. Minimum value is {dec_value}.");
 
-                                return DecoratorValidationResult::Error(error_message);
+                                return DecoratorValidationResult::Error(vec![error_message]);
                             }
                             _ => return DecoratorValidationResult::Ok,
                         },
@@ -77,25 +77,31 @@ pub fn get() -> HashMap<String, Decorator> {
                                 let error_message =
                                     format!("'{v}' is too short. Minimum length is {dec_value}.");
 
-                                return DecoratorValidationResult::Error(error_message);
+                                return DecoratorValidationResult::Error(vec![error_message]);
                             }
 
                             return DecoratorValidationResult::Ok;
                         }
                         ValueType::StringArray(v) => {
+                            let mut errors: Vec<String> = Vec::new();
                             for s in v {
                                 if dec_value > s.len() as f64 {
                                     let error_message = format!(
                                         "'{s}' is too short. Minimum length is {dec_value}."
                                     );
 
-                                    return DecoratorValidationResult::Error(error_message);
+                                    errors.push(error_message);
                                 }
                             }
 
-                            return DecoratorValidationResult::Ok;
+                            if errors.len() != 0 {
+                                return DecoratorValidationResult::Error(errors);
+                            } else {
+                                return DecoratorValidationResult::Ok;
+                            }
                         }
                         ValueType::NumberArray(v) => {
+                            let mut errors: Vec<String> = Vec::new();
                             for num in v {
                                 match num.cmp(&dec_value) {
                                     CompareResult::Less => {
@@ -103,19 +109,23 @@ pub fn get() -> HashMap<String, Decorator> {
                                             "{num} is too small. Minimum value is {dec_value}."
                                         );
 
-                                        return DecoratorValidationResult::Error(error_message);
+                                        errors.push(error_message);
                                     }
                                     _ => continue,
                                 }
                             }
 
-                            return DecoratorValidationResult::Ok;
+                            if errors.len() != 0 {
+                                return DecoratorValidationResult::Error(errors);
+                            } else {
+                                return DecoratorValidationResult::Ok;
+                            }
                         }
                     },
                     DecoratorValue::None => {
                         let error_message = format!("The min decorator requires a value to be provided with it. Ex: `@min(5)`");
 
-                        return DecoratorValidationResult::Error(error_message);
+                        return DecoratorValidationResult::Error(vec![error_message]);
                     }
                 }
             }),
@@ -130,7 +140,7 @@ pub fn get() -> HashMap<String, Decorator> {
                     DecoratorValue::String(v) => {
                         let error_message = format!("'{v}' is not valid for decorator type 'max'. 'max' requires a number value.");
 
-                        return DecoratorValidationResult::Error(error_message);
+                        return DecoratorValidationResult::Error(vec![error_message]);
                     }
                     DecoratorValue::Integer(dec_value) => match value {
                         ValueType::Number(v) => match v.cmp(&dec_value) {
@@ -138,7 +148,7 @@ pub fn get() -> HashMap<String, Decorator> {
                                 let error_message =
                                     format!("{v} is too large. Maximum value is {dec_value}.");
 
-                                return DecoratorValidationResult::Error(error_message);
+                                return DecoratorValidationResult::Error(vec![error_message]);
                             }
                             _ => return DecoratorValidationResult::Ok,
                         },
@@ -147,25 +157,31 @@ pub fn get() -> HashMap<String, Decorator> {
                                 let error_message =
                                     format!("'{v}' is too long. Maximum length is {dec_value}.");
 
-                                return DecoratorValidationResult::Error(error_message);
+                                return DecoratorValidationResult::Error(vec![error_message]);
                             }
 
                             return DecoratorValidationResult::Ok;
                         }
                         ValueType::StringArray(v) => {
+                            let mut errors: Vec<String> = Vec::new();
                             for s in v {
                                 if dec_value < s.len() as f64 {
                                     let error_message = format!(
                                         "'{s}' is too long. Maximum length is {dec_value}."
                                     );
 
-                                    return DecoratorValidationResult::Error(error_message);
+                                    errors.push(error_message);
                                 }
                             }
 
-                            return DecoratorValidationResult::Ok;
+                            if errors.len() != 0 {
+                                return DecoratorValidationResult::Error(errors);
+                            } else {
+                                return DecoratorValidationResult::Ok;
+                            }
                         }
                         ValueType::NumberArray(v) => {
+                            let mut errors: Vec<String> = Vec::new();
                             for num in v {
                                 match num.cmp(&dec_value) {
                                     CompareResult::Greater => {
@@ -175,19 +191,23 @@ pub fn get() -> HashMap<String, Decorator> {
 
                                         println!("There was an error");
 
-                                        return DecoratorValidationResult::Error(error_message);
+                                        errors.push(error_message);
                                     }
                                     _ => continue,
                                 }
                             }
 
-                            DecoratorValidationResult::Ok
+                            if errors.len() != 0 {
+                                return DecoratorValidationResult::Error(errors);
+                            } else {
+                                return DecoratorValidationResult::Ok;
+                            }
                         }
                     },
                     DecoratorValue::None => {
                         let error_message = format!("The max decorator requires a value to be provided with it. Ex: `@max(5)`");
 
-                        return DecoratorValidationResult::Error(error_message);
+                        return DecoratorValidationResult::Error(vec![error_message]);
                     }
                 }
             }),
@@ -199,7 +219,7 @@ pub fn get() -> HashMap<String, Decorator> {
                     let error_message = 
                         format!("'{dec_value}' is not valid for decorator type 'startsWith'. 'startsWith' requires a string value.");
 
-                    return DecoratorValidationResult::Error(error_message);
+                    return DecoratorValidationResult::Error(vec![error_message]);
                 }
                 DecoratorValue::String(dec_value) => {
                     match value {
@@ -210,24 +230,29 @@ pub fn get() -> HashMap<String, Decorator> {
 
                             let error_message = format!("'{v}' does not start with '{dec_value}'");
 
-                            return DecoratorValidationResult::Error(error_message);
+                            return DecoratorValidationResult::Error(vec![error_message]);
                         },
                         ValueType::StringArray(v) => {
+                            let mut errors: Vec<String> = Vec::new();
                             for item in v {
                                 if !item.starts_with(&dec_value) {
                                     let error_message = format!("'{item}' does not start with '{dec_value}'");
 
-                                    return DecoratorValidationResult::Error(error_message); 
+                                    errors.push(error_message); 
                                 }
                             }
                             
-                            return DecoratorValidationResult::Ok;
+                            if errors.len() != 0 {
+                                return DecoratorValidationResult::Error(errors);
+                            } else {
+                                return DecoratorValidationResult::Ok;
+                            }
                         },
                         _ => {
                             let error_message = 
                             format!("startsWith does not support this variable type. startsWith only supports the string and string array types.");
 
-                            return DecoratorValidationResult::Error(error_message);
+                            return DecoratorValidationResult::Error(vec![error_message]);
                         }
                     }
                 },
@@ -235,7 +260,7 @@ pub fn get() -> HashMap<String, Decorator> {
                     let error_message = 
                         format!("The startsWith decorator requires a value to be provided with it. Ex: `@startsWith({})`", "\"index\"");
 
-                    return DecoratorValidationResult::Error(error_message);
+                    return DecoratorValidationResult::Error(vec![error_message]);
                 }
             }),
         },
@@ -246,7 +271,7 @@ pub fn get() -> HashMap<String, Decorator> {
                     let error_message = 
                         format!("'{dec_value}' is not valid for decorator type 'endsWith'. 'endsWith' requires a string value.");
 
-                    return DecoratorValidationResult::Error(error_message);
+                    return DecoratorValidationResult::Error(vec![error_message]);
                 }
                 DecoratorValue::String(dec_value) => {
                     match value {
@@ -257,24 +282,29 @@ pub fn get() -> HashMap<String, Decorator> {
 
                             let error_message = format!("'{v}' does not end with '{dec_value}'");
 
-                            return DecoratorValidationResult::Error(error_message);
+                            return DecoratorValidationResult::Error(vec![error_message]);
                         },
                         ValueType::StringArray(v) => {
+                            let mut errors: Vec<String> = Vec::new();
                             for item in v {
                                 if !item.ends_with(&dec_value) {
                                     let error_message = format!("'{item}' does not end with '{dec_value}'");
 
-                                    return DecoratorValidationResult::Error(error_message); 
+                                    errors.push(error_message); 
                                 }
                             }
                             
-                            return DecoratorValidationResult::Ok;
+                            if errors.len() != 0 {
+                                return DecoratorValidationResult::Error(errors);
+                            } else {
+                                return DecoratorValidationResult::Ok;
+                            }
                         },
                         _ => {
                             let error_message = 
                             format!("endsWith does not support this variable type. endsWith only supports the string and string array types.");
 
-                            return DecoratorValidationResult::Error(error_message);
+                            return DecoratorValidationResult::Error(vec![error_message]);
                         }
                     }
                 },
@@ -282,7 +312,7 @@ pub fn get() -> HashMap<String, Decorator> {
                     let error_message = 
                         format!("The endsWith decorator requires a value to be provided with it. Ex: `@endsWith({})`", "\"index\"");
 
-                    return DecoratorValidationResult::Error(error_message);
+                    return DecoratorValidationResult::Error(vec![error_message]);
                 }
             }),
         },

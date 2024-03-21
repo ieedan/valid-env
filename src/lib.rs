@@ -38,6 +38,7 @@ pub struct Key {
     pub key: String,
     pub scope: Scope,
     pub value: ValueType,
+    pub position: FilePosition,
     pub valid: bool,
     pub errors: Vec<String>,
 }
@@ -159,8 +160,10 @@ pub fn parse(content: &str) -> ParseResult {
 
                             let result = (d.validator)(value_type.to_owned(), dec_value);
 
-                            if let DecoratorValidationResult::Error(err) = result {
-                                errors.push(err);
+                            if let DecoratorValidationResult::Error(errs) = result {
+                                for err in errs {
+                                    errors.push(err);
+                                }
                             }
 
                             if d.name == "public" {
@@ -180,6 +183,7 @@ pub fn parse(content: &str) -> ParseResult {
                     valid: errors.len() == 0,
                     value: value_type,
                     errors: errors,
+                    position: current_key.1.to_owned(),
                 };
 
                 if keys.contains_key(&key.key) {
@@ -215,6 +219,12 @@ pub fn parse(content: &str) -> ParseResult {
 
         result.keys.push(v);
     }
+
+    // Sorts the keys back to original order
+    // since the hash map doesn't maintain the order
+    result
+        .keys
+        .sort_by(|a, b| a.position.line.cmp(&b.position.line));
 
     result
 }
