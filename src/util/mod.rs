@@ -24,7 +24,7 @@ impl Compare for f64 {
 ///  
 /// # Examples
 /// ```
-/// let val = "\"something\""
+/// let val = "\"something\"";
 /// 
 /// let result = trim_quotes(val);
 /// 

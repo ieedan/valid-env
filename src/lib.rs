@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use decorators::{DecoratorValidationResult, DecoratorValue};
+use decorators::DecoratorValidationResult;
 use util::trim_quotes;
 
 pub mod decorators;
@@ -132,33 +132,21 @@ pub fn parse(content: &str) -> ParseResult {
             } else if is_comment {
                 is_comment = false;
             } else if is_value {
-                let mut errors: Vec<String> = Vec::new();
-
                 let mut scope = Scope::Private;
 
                 let value_type = coerce_value_type(&current.trim());
 
+                let mut errors: Vec<String> = Vec::new();
+
+                // Validate with decorators
                 for (dec, pos) in current_decorators {
-                    let start_parens = dec.find('(');
-                    let decorator_info = match start_parens {
-                        Some(index) => {
-                            let end_parens = dec.find(')').unwrap_or(dec.len());
+                    let decorator_info = decorators::parse(&dec);
 
-                            let key = &dec[0..index];
-                            let value = &dec[index + 1..end_parens]; // This will get the value between the parentheses
-
-                            (key, Some(value))
-                        }
-                        None => (&dec[..], None),
-                    };
-
-                    let found_decorator = decorators.get(decorator_info.0);
+                    let found_decorator = decorators.get(&decorator_info.key);
 
                     match found_decorator {
                         Some(d) => {
-                            let dec_value = DecoratorValue::from_str(decorator_info.1);
-
-                            let result = (d.validator)(value_type.to_owned(), dec_value);
+                            let result = (d.validator)(value_type.to_owned(), decorator_info.value);
 
                             if let DecoratorValidationResult::Error(errs) = result {
                                 for err in errs {
@@ -171,7 +159,8 @@ pub fn parse(content: &str) -> ParseResult {
                             }
                         }
                         None => {
-                            let error_message = format!("Invalid decorator '{}'", decorator_info.0);
+                            let error_message =
+                                format!("Invalid decorator '{}'", decorator_info.key);
                             result.errors.push(ParseError::new(error_message, pos));
                         }
                     }

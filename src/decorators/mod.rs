@@ -10,18 +10,18 @@ pub enum DecoratorValue {
 }
 
 impl DecoratorValue {
-    pub fn from_str(val: Option<&str>) -> Self {
-        match val {
-            Some(v) => {
-                if v.parse::<f64>().is_ok() {
-                    return DecoratorValue::Integer(v.parse::<f64>().unwrap());
-                }
-
-                return DecoratorValue::String(trim_quotes(v));
-            }
-            None => DecoratorValue::None,
+    pub fn from_str(val: &str) -> Self {
+        if val.parse::<f64>().is_ok() {
+            return DecoratorValue::Integer(val.parse::<f64>().unwrap());
         }
+
+        return DecoratorValue::String(trim_quotes(val));
     }
+}
+
+pub struct DecoratorParseResult {
+    pub key: String,
+    pub value: DecoratorValue,
 }
 
 pub enum DecoratorValidationResult {
@@ -212,6 +212,7 @@ pub fn get() -> HashMap<String, Decorator> {
                 }
             }),
         },
+        // ====== startsWith ======
         Decorator {
             name: String::from("startsWith"),
             validator: Box::new(|value, decorator_value| match decorator_value {
@@ -264,6 +265,7 @@ pub fn get() -> HashMap<String, Decorator> {
                 }
             }),
         },
+        // ====== endsWith ======
         Decorator {
             name: String::from("endsWith"),
             validator: Box::new(|value, decorator_value| match decorator_value {
@@ -323,4 +325,43 @@ pub fn get() -> HashMap<String, Decorator> {
     }
 
     map
+}
+
+/// Parses the decorator syntax and returns its key and value if it has one
+/// 
+/// # Parameters
+/// - `dec`: Should come in the format of `'decorator(value)'` or `'decorator'`
+/// 
+/// # Returns 
+/// The key (before the parentheses) and value (inside of the parentheses) of the decorator
+/// 
+/// # Examples 
+/// ```
+/// let decorator = "startsWith("https");";
+/// 
+/// let decorator_info = parse(decorator);
+/// 
+/// assert_eq!(decorator_info.key, "startsWith");
+/// ```
+pub fn parse(dec: &str) -> DecoratorParseResult {
+    let start_parens = dec.find('(');
+    match start_parens {
+        Some(index) => {
+            let end_parens = dec.find(')').unwrap_or(dec.len());
+
+            let key = &dec[0..index]; // Gets the value before the parentheses
+            let value = &dec[index + 1..end_parens]; // Gets the value between the parentheses
+
+            return DecoratorParseResult {
+                key: key.to_owned(),
+                value: DecoratorValue::from_str(value)
+            }
+        }
+        None => {
+            return DecoratorParseResult {
+                key: dec.to_owned(),
+                value: DecoratorValue::None
+            }
+        },
+    };
 }
