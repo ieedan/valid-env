@@ -108,9 +108,7 @@ pub fn parse(content: &str) -> ParseResult {
             current = String::new();
         } else if c == '"' && is_value {
             is_string = !is_string;
-            if is_array {
-                current.push_str(&c.to_string());
-            }
+            current.push_str(&c.to_string());
         } else if c == '[' && is_value && !is_array && !is_string {
             is_array = true;
         } else if c == ']' && is_value && is_array && !is_string {

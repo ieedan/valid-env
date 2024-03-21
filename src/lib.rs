@@ -12,5 +12,7 @@ mod tests {
         mod private;
         mod ends_with;
         mod starts_with;
+        mod matches;
+        mod does_not_match;
     }
 }
