@@ -26,6 +26,31 @@ fn string_correctly_parsed() {
 }
 
 #[test]
+fn digits_string_correctly_parsed() {
+    let expected_key = "SOMETHING";
+    let expected_value = "123456";
+
+    let content = format!("{expected_key}=\"{expected_value}\"");
+
+    let result = parse(&content);
+
+    for key in result.keys {
+        if key.key != expected_key {
+            panic!("'{}' was found. Expected '{expected_key}'", key.key);
+        } else {
+            match key.value {
+                crate::parsing::ValueType::String(v) => {
+                    if v != expected_value {
+                        panic!("'{v}' was found. Expected '{expected_value}'");
+                    }
+                }
+                _ => panic!("Invalid value type. Expected String"),
+            }
+        }
+    }
+}
+
+#[test]
 fn number_correctly_parsed() {
     let expected_key = "SOMETHING";
     let expected_value: f64 = 25.0;
