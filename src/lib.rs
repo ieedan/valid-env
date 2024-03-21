@@ -10,5 +10,7 @@ mod tests {
         mod max;
         mod public;
         mod private;
+        mod ends_with;
+        mod starts_with;
     }
 }
