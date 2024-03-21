@@ -126,3 +126,133 @@ fn string_passes() {
         }
     }
 }
+
+#[test]
+fn string_array_fails() {
+    let max: i32 = 5;
+    let failed_value = "iiiiii";
+    let expected_key = "SOMETHING";
+    let expected_value: Vec<&str> = vec![failed_value, "iiiii", "iiiii", "iiiii"];
+
+    let content = format!("@max({max})\n{expected_key}={:?}", expected_value);
+
+    let expected_error = format!("'{failed_value}' is too long. Maximum length is {max}.");
+
+    println!("{content}");
+
+    let result = parse(&content);
+
+    if result.valid {
+        panic!("Result should have been invalid.");
+    }
+
+    for key in result.keys {
+        if key.key != expected_key {
+            panic!("'{}' was found. Expected '{expected_key}'", key.key);
+        } else {
+            match key.value {
+                crate::parsing::ValueType::StringArray(v) => {
+                    assert_eq!(expected_value, v);
+                }
+                _ => panic!("Invalid value type. Expected String Array"),
+            }
+
+            assert_eq!(vec![expected_error.to_owned()], key.errors);
+        }
+    }
+}
+
+#[test]
+fn string_array_passes() {
+    let max = 5;
+    let expected_key = "SOMETHING";
+    let expected_value: Vec<&str> = vec!["iiiii", "iiiii", "iiiii", "iiiii"];
+
+    let content = format!("@max({max})\n{expected_key}={:?}", expected_value);
+
+    println!("{content}");
+
+    let result = parse(&content);
+
+    if !result.valid {
+        panic!("Result should have been valid.");
+    }
+
+    for key in result.keys {
+        if key.key != expected_key {
+            panic!("'{}' was found. Expected '{expected_key}'", key.key);
+        } else {
+            match key.value {
+                crate::parsing::ValueType::StringArray(v) => {
+                    assert_eq!(expected_value, v);
+                }
+                _ => panic!("Invalid value type. Expected String Array"),
+            }
+        }
+    }
+}
+
+#[test]
+fn number_array_fails() {
+    let max = 5;
+    let failed_value = 6.0;
+    let expected_key = "SOMETHING";
+    let expected_value = vec![failed_value, 5.0, 5.0, 5.0];
+
+    let content = format!("@max({max})\n{expected_key}={:?}", expected_value);
+
+    let expected_error = format!("{failed_value} is too large. Maximum value is {max}.");
+
+    println!("{content}");
+
+    let result = parse(&content);
+
+    if result.valid {
+        panic!("Result should have been invalid.");
+    }
+
+    for key in result.keys {
+        if key.key != expected_key {
+            panic!("'{}' was found. Expected '{expected_key}'", key.key);
+        } else {
+            match key.value {
+                crate::parsing::ValueType::NumberArray(v) => {
+                    assert_eq!(expected_value, v);
+                }
+                _ => panic!("Invalid value type. Expected Number Array"),
+            }
+
+            assert_eq!(vec![expected_error.to_owned()], key.errors);
+        }
+    }
+}
+
+#[test]
+fn number_array_passes() {
+    let max = 5;
+    let expected_key = "SOMETHING";
+    let expected_value = vec![5.0, 5.0, 5.0, 5.0];
+
+    let content = format!("@max({max})\n{expected_key}={:?}", expected_value);
+
+    println!("{content}");
+
+    let result = parse(&content);
+
+    if !result.valid {
+        panic!("Result should have been valid.");
+    }
+
+    for key in result.keys {
+        if key.key != expected_key {
+            panic!("'{}' was found. Expected '{expected_key}'", key.key);
+        } else {
+            match key.value {
+                crate::parsing::ValueType::NumberArray(v) => {
+                    assert_eq!(expected_value, v);
+                }
+                _ => panic!("Invalid value type. Expected Number Array"),
+            }
+        }
+    }
+}
