@@ -26,7 +26,7 @@ impl Compare for f64 {
 /// ```
 /// let val = "\"something\"";
 /// 
-/// let result = trim_quotes(val);
+/// let result = valid_env::util::trim_quotes(val);
 /// 
 /// assert_eq!(result, "something");
 /// ```

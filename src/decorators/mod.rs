@@ -1,5 +1,5 @@
 use crate::util::{trim_quotes, Compare};
-use crate::{util::CompareResult, ValueType};
+use crate::{util::CompareResult, parsing::ValueType};
 use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
@@ -337,9 +337,9 @@ pub fn get() -> HashMap<String, Decorator> {
 /// 
 /// # Examples 
 /// ```
-/// let decorator = "startsWith("https");";
+/// let decorator = "startsWith(\"https\");";
 /// 
-/// let decorator_info = parse(decorator);
+/// let decorator_info = valid_env::decorators::parse(decorator);
 /// 
 /// assert_eq!(decorator_info.key, "startsWith");
 /// ```
