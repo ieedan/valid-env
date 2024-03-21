@@ -22,18 +22,28 @@ ALLOWED_IPS=["172.16.100.10", "192.168.1.1"]
 
 > Note: This is not stable for production use
 
+## Variable Types
+Currently valid-env supports 4 different types of environment variables.
+
+- String
+- Number
+- String[]
+- Number[]
+
+For simplicity to the end user all numbers are 64 bit floating point integers.
+
 ## Decorator Enhanced
 valid-env extends the .env syntax with decorators that allow you to validate and scope your environment variables.
 
 ### Decorators
-- [@public](#@public)
-- [@private](#@private)
-- [@min](#@min)
-- [@max](#@max)
-- [@startsWith](#@startsWith)
-- [@endsWith](#@endsWith)
-- [@matches](#@matches)
-- [@doesNotMatch](#@doesNotMatch)
+- [@public](#public)
+- [@private](#private)
+- [@min](#min)
+- [@max](#max)
+- [@startsWith](#startsWith)
+- [@endsWith](#endsWith)
+- [@matches](#matches)
+- [@doesNotMatch](#doesNotMatch)
 
 ### @public
 Changes the scope of the environment variable to **public**;
