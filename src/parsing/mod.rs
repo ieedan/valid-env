@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use crate::decorators::{self, DecoratorValidationResult};
+use crate::decorators::{self, DecoratorValidationResult, ValidationError};
 use crate::util::trim_quotes;
 
 #[derive(Debug, Clone, Copy)]
@@ -35,7 +35,7 @@ pub struct Key {
     pub value: ValueType,
     pub position: FilePosition,
     pub valid: bool,
-    pub errors: Vec<String>,
+    pub errors: Vec<ValidationError>,
 }
 
 #[derive(Debug, Clone)]
@@ -129,7 +129,7 @@ pub fn parse(content: &str) -> ParseResult {
 
                 let value_type = coerce_value_type(&current.trim());
 
-                let mut errors: Vec<String> = Vec::new();
+                let mut errors: Vec<ValidationError> = Vec::new();
 
                 // Validate with decorators
                 for (dec, pos) in current_decorators {
