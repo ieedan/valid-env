@@ -1,6 +1,8 @@
 # valid-env
 A decorator enhanced .env syntax for validating your environment variables all within your .env file.
 
+![CI](https://github.com/ieedan/valid-env/actions/workflows/continuous-integration.yml/badge.svg?branch=main)
+
 ```ruby
 @startsWith("https://")
 # Must be min 10 for name of domain and domain postfix Ex: (https://d.t)
