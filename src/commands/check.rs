@@ -94,7 +94,23 @@ pub fn default(options: Options) {
                             line = format!("{}={string_val}", key.key);
                         }
                     } else {
-                        line = l.to_string();
+                        if cloak {
+                            let found_index = l.find("=");
+
+                            if let Some(index) = found_index {
+                                let start = &l[..index + 1];
+
+                                let mut cloaked = String::new();
+
+                                for _ in 0..string_val.len() {
+                                    cloaked.push_str("*");
+                                }
+
+                                line = format!("{start}{cloaked}");
+                            }
+                        } else {
+                            line = l.to_string();
+                        }
                     }
                     break;
                 }
