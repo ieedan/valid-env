@@ -20,6 +20,23 @@ API_KEY="g74Ed6Z6txrEiGX9rSybQxWfVCFDfvAvhuOBrZvsTjfuGNrNt1jyjHfhQPSdzNh5kf6juBs
 ALLOWED_IPS=["172.16.100.10", "192.168.1.1"]
 ```
 
+```bash
+C:\Users\aidan> vnv check
+Checking '.vnv'...
+ALLOWED_ORIGINS ✔️
+POLLING_INTERVAL ❌
+ERROR: 500 is too small. Minimum value is 1000.
+--> .vnv:10:1
+     |
+10   |  POLLING_INTERVAL=500
+     |                   ^^^
+
+PORT ✔️
+API_KEY ✔️
+ALLOWED_IPS ✔️
+Check completed in 1.74ms
+```
+
 > Note: This is not stable for production use
 
 ## Getting Started
