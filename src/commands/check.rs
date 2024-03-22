@@ -116,6 +116,7 @@ pub fn default(options: Options) {
                 }
             }
 
+            // If someone knows why this shows a warning please help
             let mut error_str = String::new();
 
             if cloak {

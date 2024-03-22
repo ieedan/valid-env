@@ -32,6 +32,10 @@ ALLOWED_IPS=["172.16.100.10", "192.168.1.1"]
 
 4. Download the VS Code extension for syntax highlighting [here](https://marketplace.visualstudio.com/items?itemName=AidanBleser.valid-env).
 
+5. Create a file called `.vnv`.
+
+6. Run `vnv check` to validate your environment variables
+
 ## Variable Types
 Currently valid-env supports 4 different types of environment variables.
 
