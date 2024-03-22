@@ -22,6 +22,20 @@ ALLOWED_IPS=["172.16.100.10", "192.168.1.1"]
 
 > Note: This is not stable for production use
 
+## Getting Started
+
+1. Download the source code and compile the binary. 
+
+2. Set your system path variable to point to the binary.
+
+3. Check you have it correctly configured with `vnv --version`
+
+4. Download the VS Code extension for syntax highlighting [here](https://marketplace.visualstudio.com/items?itemName=AidanBleser.valid-env).
+
+5. Create a file called `.vnv`.
+
+6. Run `vnv check` to validate your environment variables
+
 ## Variable Types
 Currently valid-env supports 4 different types of environment variables.
 

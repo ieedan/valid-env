@@ -32,7 +32,7 @@ fn string_fails() {
             }
 
             for err in key.errors {
-                assert_eq!(expected_error_message, err);
+                assert_eq!(expected_error_message, err.message);
             }
         }
     }
@@ -102,7 +102,7 @@ fn string_array_fails() {
             }
 
             for err in key.errors {
-                assert_eq!(expected_error_message, err);
+                assert_eq!(expected_error_message, err.message);
             }
         }
     }

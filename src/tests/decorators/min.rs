@@ -28,7 +28,7 @@ fn number_fails() {
             }
 
             for err in key.errors {
-                assert_eq!(expected_error_message, err);
+                assert_eq!(expected_error_message, err.message);
             }
         }
     }
@@ -62,7 +62,7 @@ fn number_passes() {
             }
 
             for err in key.errors {
-                assert_eq!(expected_error_message, err);
+                assert_eq!(expected_error_message, err.message);
             }
         }
     }
@@ -99,7 +99,7 @@ fn string_fails() {
             }
 
             for err in key.errors {
-                assert_eq!(expected_error_message, err);
+                assert_eq!(expected_error_message, err.message);
             }
         }
     }
@@ -142,7 +142,7 @@ fn string_array_fails() {
 
     let content = format!("@min({min})\n{expected_key}={:?}", expected_value);
 
-    let expected_error = format!("'{failed_value}' is too short. Minimum length is {min}.");
+    let expected_error_message = format!("'{failed_value}' is too short. Minimum length is {min}.");
 
     println!("{content}");
 
@@ -163,7 +163,9 @@ fn string_array_fails() {
                 _ => panic!("Invalid value type. Expected String Array"),
             }
 
-            assert_eq!(vec![expected_error.to_owned()], key.errors);
+            for err in key.errors {
+                assert_eq!(expected_error_message, err.message);
+            }
         }
     }
 }
@@ -207,7 +209,7 @@ fn number_array_fails() {
 
     let content = format!("@min({min})\n{expected_key}={:?}", expected_value);
 
-    let expected_error = format!("{failed_value} is too small. Minimum value is {min}.");
+    let expected_error_message = format!("{failed_value} is too small. Minimum value is {min}.");
 
     println!("{content}");
 
@@ -228,7 +230,9 @@ fn number_array_fails() {
                 _ => panic!("Invalid value type. Expected Number Array"),
             }
 
-            assert_eq!(vec![expected_error.to_owned()], key.errors);
+            for err in key.errors {
+                assert_eq!(expected_error_message, err.message);
+            }
         }
     }
 }

@@ -1,18 +1,22 @@
-use valid_env::parsing::parse;
-use std::env;
-use std::fs;
-use std::path::Path;
+use clap::Parser;
+use commands::{check, Commands};
+
+mod commands;
+
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
+struct Cli {
+    /// Commands to execute
+    #[clap(subcommand)]
+    command: Commands,
+}
 
 fn main() {
-    let path = env::args().nth(1).expect("Must provide a file path.");
+    let args = Cli::parse();
 
-    let path = Path::new(&path.trim()).canonicalize().expect("Must provide valid path.");
-
-    let file_contents = fs::read(path).expect("Error reading file");
-
-    let content = String::from_utf8(file_contents).unwrap();
-
-    let result = parse(&content);
-
-    dbg!(result);
+    match args.command {
+        Commands::Check(options) => {
+            commands::check(options);
+        }
+    }
 }

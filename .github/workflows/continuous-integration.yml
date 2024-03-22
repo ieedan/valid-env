@@ -20,3 +20,7 @@ jobs:
       run: cargo build --verbose
     - name: Run tests
       run: cargo test --verbose
+    # This should not be done normally because you should not be committing your environment variables to git
+    # This is to make sure the binary is working and to make sure that the example file is valid syntax
+    - name: Check .vnv
+      run: ./target/debug/vnv check

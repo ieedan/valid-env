@@ -5,6 +5,7 @@ pub mod parsing;
 #[cfg(test)]
 mod tests {
     mod value_types;
+    mod util;
     mod decorators {
         mod min;
         mod max;

@@ -1,0 +1,38 @@
+{
+	"name": "valid-env",
+	"displayName": "valid-env for VS Code",
+	"description": "Adds language support for .vnv files",
+	"version": "0.0.1",
+	"engines": {
+		"vscode": "^1.87.0"
+	},
+	"publisher": "AidanBleser",
+	"categories": [
+		"Programming Languages"
+	],
+	"repository": {
+		"url": "https://github.com/ieedan/valid-env"
+	},
+	"contributes": {
+		"languages": [
+			{
+				"id": "vnv",
+				"aliases": [
+					"valid-env",
+					"vnv"
+				],
+				"extensions": [
+					".vnv"
+				],
+				"configuration": "./language-configuration.json"
+			}
+		],
+		"grammars": [
+			{
+				"language": "vnv",
+				"scopeName": ".vnv",
+				"path": "./syntaxes/vnv.tmLanguage.json"
+			}
+		]
+	}
+}
