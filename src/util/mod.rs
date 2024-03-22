@@ -45,3 +45,33 @@ pub fn trim_quotes(val: &str) -> String {
 
     trimmed
 }
+
+/// Adds whitespace to the left of the number so that it meets the min_length provided
+/// 
+/// # Returns
+/// A left padding string containing the number
+/// 
+/// # Examples
+/// 
+/// ```
+/// let number = 1;
+/// 
+/// let result = vnv::util::number_pad(number, 3);
+/// 
+/// assert_eq!(result, "  1");
+/// ```
+pub fn number_pad(num: u32, min_length: usize) -> String {
+    let num_str = num.to_string();
+
+    let padding = min_length - num_str.len();
+
+    let mut result = String::new();
+
+    for _ in 0..padding {
+        result.push_str(" ");
+    }
+
+    result.push_str(&num_str);
+
+    result
+}
