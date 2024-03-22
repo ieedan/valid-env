@@ -21,4 +21,4 @@ jobs:
     - name: Run tests
       run: cargo test --verbose
     - name: Check .vnv
-      run: ./target/release/vnv.exe check
+      run: ./target/debug/vnv.exe check
