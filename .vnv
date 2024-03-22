@@ -7,7 +7,7 @@
 ALLOWED_ORIGINS=["https://github.com", "https://aidanbleser.com"]
 @min(1000)
 @public
-POLLING_INTERVAL=500
+POLLING_INTERVAL=5000
 @min(1024)
 @max(49151)
 @public
