@@ -1,0 +1,79 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "valid-env",
+	"patterns": [
+		{
+			"include": "#keywords"
+		},
+		{
+			"include": "#strings"
+		},
+		{
+			"include": "#functions"
+		},
+		{
+			"include": "#numbers"
+		},
+		{
+			"include": "#variables"
+		},
+		{
+			"include": "#comments"
+		}
+	],
+	"repository": {
+		"keywords": {
+			"patterns": [
+				{
+					"name": "keyword.control.vnv",
+					"match": "@?(public|private)\\b"
+				}
+			]
+		},
+		"strings": {
+			"name": "string.quoted.double.vnv",
+			"begin": "\"",
+			"end": "\"",
+			"patterns": [
+				{
+					"name": "constant.character.escape.vnv",
+					"match": "\\\\."
+				}
+			]
+		},
+		"numbers": {
+			"patterns": [
+				{
+					"name": "constant.numeric",
+					"match": "(?=)[\\d]+\n"
+				},
+				{
+					"name": "constant.numeric",
+					"match": "(?<=\\()[\\d]+(?=\\))"
+				}
+			]
+		},
+		"variables": {
+			"patterns": [
+				{
+					"name": "variable",
+					"match": "^\\w+(?=)"
+				}
+			]
+		},
+		"comments": {
+			"name": "comment",
+			"begin": "# ",
+			"end": "\n"
+		},
+		"functions": {
+			"patterns": [
+				{
+					"name": "keyword.operator.new",
+					"match": "^@(min|max|startsWith|endsWith|matches|doesNotMatch)\\b"
+				}
+			]
+		}
+	},
+	"scopeName": ".vnv"
+}
