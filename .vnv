@@ -1,3 +1,6 @@
+# This is an example of how you might use valid-env
+# If you are contributing to valid-env this is a great way to test things out
+
 @startsWith("https://")
 # Must be min 10 for name of domain and domain postfix Ex: (https://d.t)
 @min(10)
