@@ -20,6 +20,7 @@ impl DecoratorValue {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct DecoratorParseResult {
     pub key: String,
     pub value: DecoratorValue,

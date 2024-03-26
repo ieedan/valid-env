@@ -1,5 +1,5 @@
 # valid-env
-A decorator enhanced .env syntax for validating your environment variables all within your .env file.
+A decorator enhanced .env syntax for validating your environment variables all within a .vnv file.
 
 ![CI](https://github.com/ieedan/valid-env/actions/workflows/continuous-integration.yml/badge.svg?branch=main)
 
@@ -51,9 +51,11 @@ Check completed in 1.74ms
 
 4. Download the VS Code extension for syntax highlighting [here](https://marketplace.visualstudio.com/items?itemName=AidanBleser.valid-env).
 
-5. Create a file called `.vnv`.
+5. Run `vnv init` to setup the config file and optional template files.
 
 6. Run `vnv check` to validate your environment variables
+
+7. Run `vnv build` to build your `.vnv` file into a `.env` file
 
 ## Variable Types
 Currently valid-env supports 4 different types of environment variables.
