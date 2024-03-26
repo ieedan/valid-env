@@ -4,7 +4,7 @@ use serde_json;
 use std::{collections::HashMap, fs};
 use vnv::{
     parsing::config,
-    util::{printf, read_yes_no, request_value, Answer},
+    util::{printf, ask_yes_no, request_value, Answer},
 };
 
 const INIT_MESSAGE: &str = r#"                  
@@ -32,6 +32,14 @@ const DEFAULT_GIT_IGNORE: &str = r#".vnv
 
 /// Initializes the config file and optionally a template file
 pub fn default() {
+    match fs::read(CONFIG_PATH) {
+        Ok(_) => {
+            println!("{} vnv already initialized.", "Error:".bold().red());
+            return;
+        },
+        _ => {}
+    };
+
     println!("{INIT_MESSAGE}");
 
     let mut config = config::Options::new();
@@ -43,14 +51,7 @@ pub fn default() {
     let mut fresh_file = false;
 
     if result.is_ok() {
-        printf(&format!(
-            "Overwrite source file y/N? {}",
-            "N".truecolor(125, 125, 125)
-        ));
-
-        printf("\x1B[1D");
-
-        match read_yes_no() {
+        match ask_yes_no("Overwrite source file", Answer::No) {
             Answer::Yes => {
                 println!("Overwriting source file at {}", config.src);
 
@@ -69,14 +70,7 @@ pub fn default() {
     }
 
     if fresh_file {
-        printf(&format!(
-            "Use a template file y/N? {}",
-            "y".truecolor(125, 125, 125)
-        ));
-
-        printf("\x1B[1D");
-
-        match read_yes_no() {
+        match ask_yes_no("Use a template file", Answer::Yes) {
             Answer::Yes => {
                 request_value(&mut config.template, "Where is the template file?");
 
@@ -84,13 +78,13 @@ pub fn default() {
 
                 if result.is_ok() {
                     printf(&format!(
-                        "Overwrite template file y/N? {}",
+                        " y/N? {}",
                         "N".truecolor(125, 125, 125)
                     ));
 
                     printf("\x1B[1D");
 
-                    match read_yes_no() {
+                    match ask_yes_no("Overwrite template file", Answer::No) {
                         Answer::Yes => {
                             println!("Overwriting template file at {}", config.template);
 
@@ -106,6 +100,18 @@ pub fn default() {
             }
             Answer::No => {}
         }
+    }
+
+    request_value(&mut config.build.output, "Where to write the build output?");
+
+    match ask_yes_no("Hide environment variables in std out", Answer::No) {
+        Answer::Yes => config.cloak = true,
+        Answer::No => config.cloak = false
+    }
+
+    match ask_yes_no("Keep comments and decorator comments in .env", Answer::Yes) {
+        Answer::Yes => config.build.minify = false,
+        Answer::No => config.build.minify = true
     }
 
     match fs::read(".gitignore") {

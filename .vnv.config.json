@@ -1,9 +1,9 @@
 {
-	"src": ".vnv",
-	"template": "template.vnv",
-	"cloak": true,
-	"build": {
-		"output": ".env",
-		"minify": true
-	}
+  "src": ".vnv",
+  "template": "template.vnv",
+  "cloak": false,
+  "build": {
+    "output": ".env",
+    "minify": false
+  }
 }

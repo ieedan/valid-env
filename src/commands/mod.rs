@@ -28,7 +28,10 @@ pub enum Commands {
         #[clap(short, long)]
         cloak: Option<bool>,
     },
+    /// Convert the .vnv file to a valid .env file
     Build {},
+    /// Initializes .vnv by creating the source file and settings file as well as configuring your .gitignore
     Init {},
+    /// Generates a template file from the current .vnv file
     Template { }
 }

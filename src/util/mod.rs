@@ -1,5 +1,9 @@
-use std::{fmt::{format, Display}, io::{self, Write}, str::FromStr};
 use colored::Colorize;
+use std::{
+    fmt::Display,
+    io::{self, Write},
+    str::FromStr,
+};
 
 pub enum CompareResult {
     Less,
@@ -112,17 +116,34 @@ pub enum Answer {
     No,
 }
 
-pub fn read_yes_no() -> Answer {
+impl Answer {
+    pub fn to_string(&self) -> String {
+        match self {
+            Answer::Yes => String::from("y"),
+            Answer::No => String::from("N"),
+        }
+    }
+}
+
+/// Allows you to ask the user a yes or no question with a default answer
+pub fn ask_yes_no(question: &str, default: Answer) -> Answer {
+    let default_string = default.to_string();
+
+    printf(&format!(
+        "{question} y/N? {}",
+        default_string.truecolor(125, 125, 125)
+    ));
+
+    // Move back to before the default
+    printf(&format!("\x1B[{}D", default_string.len()));
+
     let mut input = String::new();
 
     io::stdin().read_line(&mut input).unwrap();
 
     match input.trim().to_lowercase().as_str() {
-        "y" | "yes" => {
-            Answer::Yes
-        }
-        _ => {
-            Answer::No
-        }
+        "y" | "yes" => Answer::Yes,
+        "n" | "no" => Answer::No,
+        _ => default,
     }
 }

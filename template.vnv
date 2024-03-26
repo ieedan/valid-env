@@ -1,8 +1,4 @@
-# This is an example of how you might use valid-env
-# If you are contributing to valid-env this is a great way to test things out
-
 @startsWith("https://")
-# Must be min 10 for name of domain and domain postfix Ex: (https://d.t)
 @min(10)
 ALLOWED_ORIGINS
 @min(1000)
@@ -11,9 +7,8 @@ POLLING_INTERVAL
 @min(1024)
 @max(49151)
 @public
-PORT=3000
+PORT
 @min(1)
 API_KEY
-# IP Address regex thanks ChatGPT
 @matches("^(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
 ALLOWED_IPS
