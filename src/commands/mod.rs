@@ -16,12 +16,14 @@ pub use init::default as init;
 pub enum Commands {
     /// Validate the .vnv file
     Check {
+        /// Path of file to validate, defaults to ".vnv" if not specified.
+        #[clap(short, long, value_parser)]
+        file: Option<String>,
 
+        /// Will hide the values in the ".vnv" from being output to the std out
+        #[clap(short, long)]
+        cloak: Option<bool>,
     },
-    Build {
-
-    },
-    Init {
-        
-    },
+    Build {},
+    Init {},
 }

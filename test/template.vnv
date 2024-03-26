@@ -1,0 +1,6 @@
+# This file should be committed to source control and serves as the blue-print for your .vnv file
+# List the required variables here and their constraints while omitting their values
+# vnv will check the .vnv file against this file to make sure that they match 
+
+@matches("bar")
+FOO

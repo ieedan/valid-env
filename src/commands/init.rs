@@ -1,6 +1,8 @@
+use crate::CONFIG_PATH;
 use colored::Colorize;
+use serde_json;
 use std::{
-    fmt::{format, Display},
+    fmt::Display,
     fs,
     io::{self, Write},
     str::FromStr,
@@ -8,29 +10,36 @@ use std::{
 use vnv::parsing::config;
 
 const DEFAULT_SRC: &str = r#"@matches("bar")
-FOO="bar"#;
+FOO="bar"
+"#;
 
-const DEFAULT_TEMPLATE: &str = r#"# Use this file to scaffold what the '.vnv' file should look like without values
-# This file should be committed to your source control and vnv will verify that the '.vnv' file matches this files template 
+const DEFAULT_TEMPLATE: &str = r#"# This file should be committed to source control and serves as the blue-print for your .vnv file
+# List the required variables here and their constraints while omitting their values
+# vnv will check the .vnv file against this file to make sure that they match 
 
 @matches("bar")
-FOO"#;
+FOO
+"#;
 
 /// Initializes the config file and optionally a template file
 pub fn default() {
-    println!(r#"                  
+    println!(
+        r#"                  
     __   ___ ____   __
     \ \ / / '_ \ \ / /
      \ V /| | | \ V / 
       \_/ |_| |_|\_/  
                       
-"#);
+"#
+    );
 
     let mut config = config::Options::new();
 
     request_value(&mut config.src, "Where is the source file?");
 
     let result = fs::read(&config.src);
+
+    let mut fresh_file = false;
 
     if result.is_ok() {
         print(&format!(
@@ -45,7 +54,9 @@ pub fn default() {
             "y" | "yes" => {
                 println!("Overwriting source file at {}", config.src);
 
-                fs::write(config.src, DEFAULT_SRC).unwrap();
+                fs::write(&config.src, DEFAULT_SRC).unwrap();
+
+                fresh_file = true;
             }
             _ => {}
         }
@@ -53,48 +64,58 @@ pub fn default() {
         println!("Creating source file at {}", config.src);
 
         fs::write(&config.src, DEFAULT_SRC).unwrap();
+
+        fresh_file = true;
     }
 
-    let mut input = String::new();
+    if fresh_file {
+        let mut input = String::new();
 
-    print(&format!(
-        "Use a template file y/N? '{}'",
-        "N".dimmed().italic()
-    ));
+        print(&format!(
+            "Use a template file y/N? '{}' :",
+            "N".dimmed().italic()
+        ));
 
-    io::stdin().read_line(&mut input).unwrap();
+        io::stdin().read_line(&mut input).unwrap();
 
-    match input.trim().to_lowercase().as_str() {
-        "y" | "yes" => {
-            request_value(&mut config.template, "Where is the template file?");
+        match input.trim().to_lowercase().as_str() {
+            "y" | "yes" => {
+                request_value(&mut config.template, "Where is the template file?");
 
-            let result = fs::read(&config.template);
+                let result = fs::read(&config.template);
 
-            if result.is_ok() {
-                print(&format!(
-                    "Overwrite template file y/N? '{}' : ",
-                    "N".dimmed().italic()
-                ));
+                if result.is_ok() {
+                    print(&format!(
+                        "Overwrite template file y/N? '{}' : ",
+                        "N".dimmed().italic()
+                    ));
 
-                let mut input = String::new();
-                io::stdin().read_line(&mut input).unwrap();
+                    let mut input = String::new();
+                    io::stdin().read_line(&mut input).unwrap();
 
-                match input.trim().to_lowercase().as_str() {
-                    "y" | "yes" => {
-                        println!("Overwriting template file at {}", config.template);
+                    match input.trim().to_lowercase().as_str() {
+                        "y" | "yes" => {
+                            println!("Overwriting template file at {}", config.template);
 
-                        fs::write(config.template, DEFAULT_TEMPLATE).unwrap();
+                            fs::write(&config.template, DEFAULT_TEMPLATE).unwrap();
+                        }
+                        _ => {}
                     }
-                    _ => {}
-                }
-            } else {
-                println!("Creating template file at {}", config.template);
+                } else {
+                    println!("Creating template file at {}", config.template);
 
-                fs::write(config.template, DEFAULT_TEMPLATE).unwrap();
+                    fs::write(&config.template, DEFAULT_TEMPLATE).unwrap();
+                }
             }
+            _ => {}
         }
-        _ => {}
     }
+
+    let config_content = serde_json::to_string_pretty(&config).unwrap();
+
+    println!("Writing preferences to {CONFIG_PATH}.");
+
+    fs::write(&CONFIG_PATH, config_content).unwrap();
 }
 
 fn request_value<T>(value: &mut T, message: &str)
