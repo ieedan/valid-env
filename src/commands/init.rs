@@ -1,10 +1,13 @@
-use crate::CONFIG_PATH;
+use crate::{
+    commands::{self, template},
+    CONFIG_PATH,
+};
 use colored::Colorize;
 use serde_json;
 use std::{collections::HashMap, fs};
 use vnv::{
     parsing::config,
-    util::{printf, ask_yes_no, request_value, Answer},
+    util::{ask_yes_no, printf, request_value, Answer},
 };
 
 const INIT_MESSAGE: &str = r#"                  
@@ -19,14 +22,6 @@ const DEFAULT_SRC: &str = r#"@matches("bar")
 FOO="bar"
 "#;
 
-const DEFAULT_TEMPLATE: &str = r#"# This file should be committed to source control and serves as the blue-print for your .vnv file
-# List the required variables here and their constraints while omitting their values
-# vnv will check the .vnv file against this file to make sure that they match 
-
-@matches("bar")
-FOO
-"#;
-
 const DEFAULT_GIT_IGNORE: &str = r#".vnv
 .env"#;
 
@@ -36,7 +31,7 @@ pub fn default() {
         Ok(_) => {
             println!("{} vnv already initialized.", "Error:".bold().red());
             return;
-        },
+        }
         _ => {}
     };
 
@@ -70,6 +65,11 @@ pub fn default() {
     }
 
     if fresh_file {
+        let template_options = commands::template::Options {
+            default: config.to_owned(),
+            yes: true, // this way we don't ask twice
+        };
+
         match ask_yes_no("Use a template file", Answer::Yes) {
             Answer::Yes => {
                 request_value(&mut config.template, "Where is the template file?");
@@ -77,25 +77,16 @@ pub fn default() {
                 let result = fs::read(&config.template);
 
                 if result.is_ok() {
-                    printf(&format!(
-                        " y/N? {}",
-                        "N".truecolor(125, 125, 125)
-                    ));
+                    printf(&format!(" y/N? {}", "N".truecolor(125, 125, 125)));
 
                     printf("\x1B[1D");
 
                     match ask_yes_no("Overwrite template file", Answer::No) {
-                        Answer::Yes => {
-                            println!("Overwriting template file at {}", config.template);
-
-                            fs::write(&config.template, DEFAULT_TEMPLATE).unwrap();
-                        }
+                        Answer::Yes => commands::template(template_options),
                         Answer::No => {}
                     }
                 } else {
-                    println!("Creating template file at {}", config.template);
-
-                    fs::write(&config.template, DEFAULT_TEMPLATE).unwrap();
+                    commands::template(template_options);
                 }
             }
             Answer::No => {}
@@ -106,12 +97,12 @@ pub fn default() {
 
     match ask_yes_no("Hide environment variables in std out", Answer::No) {
         Answer::Yes => config.cloak = true,
-        Answer::No => config.cloak = false
+        Answer::No => config.cloak = false,
     }
 
     match ask_yes_no("Keep comments and decorator comments in .env", Answer::Yes) {
         Answer::Yes => config.build.minify = false,
-        Answer::No => config.build.minify = true
+        Answer::No => config.build.minify = true,
     }
 
     match fs::read(".gitignore") {

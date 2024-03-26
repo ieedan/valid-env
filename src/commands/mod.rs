@@ -25,13 +25,17 @@ pub enum Commands {
         file: Option<String>,
 
         /// Will hide the values in the ".vnv" in the std out
-        #[clap(short, long)]
-        cloak: Option<bool>,
+        #[clap(short, long, action = clap::ArgAction::SetTrue)]
+        cloak: bool,
     },
     /// Convert the .vnv file to a valid .env file
     Build {},
     /// Initializes .vnv by creating the source file and settings file as well as configuring your .gitignore
     Init {},
     /// Generates a template file from the current .vnv file
-    Template { }
+    Template { 
+        /// Bypasses question to overwrite template file
+       #[clap(short, long, action = clap::ArgAction::SetTrue)]
+       yes: bool, 
+    }
 }

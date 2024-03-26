@@ -1,5 +1,5 @@
-use std::fs;
 use colored::Colorize;
+use std::fs;
 use vnv::decorators::DecoratorValue;
 use vnv::util::{ask_yes_no, Answer};
 
@@ -7,6 +7,7 @@ use vnv::parsing::{self, config};
 
 pub struct Options {
     pub default: config::Options,
+    pub yes: bool,
 }
 
 pub fn default(options: Options) {
@@ -16,16 +17,19 @@ pub fn default(options: Options) {
         let read_result = fs::read(&options.default.template);
 
         if read_result.is_ok() {
-            let message = format!("Overwrite current template file {}", options.default.template);
+            if !options.yes {
+                let message = format!(
+                    "Overwrite current template file {}",
+                    options.default.template
+                );
 
-            match ask_yes_no(&message, Answer::No) {
-                Answer::Yes => {} // just continue
-                Answer::No => {
-                    return;
+                match ask_yes_no(&message, Answer::Yes) {
+                    Answer::Yes => {} // just continue
+                    Answer::No => {
+                        return;
+                    }
                 }
             }
-        } else {
-            return;
         }
 
         let content = String::from_utf8(content).unwrap();
@@ -33,7 +37,11 @@ pub fn default(options: Options) {
         let result = parsing::parse(&content);
 
         if !result.valid {
-            println!("{} {} not valid.", "Error:".bold().red(), options.default.src);
+            println!(
+                "{} {} not valid.",
+                "Error:".bold().red(),
+                options.default.src
+            );
             return;
         }
 

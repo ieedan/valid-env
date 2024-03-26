@@ -26,8 +26,8 @@ fn main() {
                 config.src = file;
             }
 
-            if let Some(cloak) = cloak {
-                config.cloak = cloak;
+            if cloak {
+                config.cloak = true;
             }
 
             let options = check::Options { default: config };
@@ -37,11 +37,9 @@ fn main() {
             let options = build::Options { default: config };
             commands::build(options);
         }
-        Commands::Init {} => {
-            commands::init();
-        }
-        Commands::Template {} => {
-            let options = template::Options { default: config };
+        Commands::Init {} => commands::init(),
+        Commands::Template { yes } => {
+            let options = template::Options { default: config, yes };
             commands::template(options);
         }
     }

@@ -3,7 +3,7 @@ use std::fs;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Options {
     pub src: String,
     pub template: String,
@@ -11,7 +11,7 @@ pub struct Options {
     pub build: Build
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Build {
     pub output: String,
     pub minify: bool
