@@ -30,6 +30,17 @@ pub enum ValueType {
     NumberArray(Vec<f64>),
 }
 
+impl ValueType {
+    pub fn to_string(&self) -> String {
+        match self {
+            ValueType::Number(v) => v.to_string(),
+            ValueType::String(v) => format!("\"{v}\""),
+            ValueType::StringArray(v) => format!("{:?}", v),
+            ValueType::NumberArray(v) => format!("{:?}", v),
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct Key {
     pub key: String,

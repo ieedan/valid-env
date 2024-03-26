@@ -1,7 +1,4 @@
-use crate::{
-    commands::{self, template},
-    CONFIG_PATH,
-};
+use crate::{commands, CONFIG_PATH};
 use colored::Colorize;
 use serde_json;
 use std::{collections::HashMap, fs};
