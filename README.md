@@ -1,5 +1,5 @@
 # valid-env
-A decorator enhanced .env syntax for validating your environment variables all within your .env file.
+A decorator enhanced .env syntax for validating your environment variables all within a .vnv file.
 
 ![CI](https://github.com/ieedan/valid-env/actions/workflows/continuous-integration.yml/badge.svg?branch=main)
 

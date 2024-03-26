@@ -2,6 +2,8 @@ use std::collections::HashMap;
 use crate::decorators::{self, DecoratorValidationResult, ValidationError};
 use crate::util::trim_quotes;
 
+pub mod config;
+
 #[derive(Debug, Clone, Copy)]
 pub struct FilePosition {
     pub line: u32,

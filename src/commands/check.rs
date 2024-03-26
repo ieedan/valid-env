@@ -1,22 +1,15 @@
 use std::{fs, path::Path, time::Instant};
-use clap::Args;
 use colored::Colorize;
-use vnv::{parsing, util};
+use vnv::{parsing::{self, config}, util};
 
-#[derive(Args, Debug)]
+#[derive(Debug)]
 pub struct Options {
-    /// Path of file to validate, defaults to ".vnv" if not specified.
-    #[clap(short, long, value_parser, default_value = ".vnv")]
-    file: String,
-
-    /// Will hide the values in the ".vnv" from being output to the std out
-    #[clap(short, long, action = clap::ArgAction::SetTrue)]
-    cloak: bool,
+    pub default: config::Options
 }
 
 pub fn default(options: Options) {
-    let file = options.file;
-    let cloak = options.cloak;
+    let file = options.default.src;
+    let cloak = options.default.cloak;
     
     let now = Instant::now();
 
