@@ -1,10 +1,8 @@
 use clap::Parser;
-use commands::{build, init, Commands};
 use vnv::parsing::config;
-
-use crate::commands::check;
-
 mod commands;
+
+use commands::{build, check, template, Commands};
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -41,6 +39,10 @@ fn main() {
         }
         Commands::Init {} => {
             commands::init();
+        }
+        Commands::Template {} => {
+            let options = template::Options { default: config };
+            commands::template(options);
         }
     }
 }

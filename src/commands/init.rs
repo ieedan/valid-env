@@ -1,13 +1,19 @@
 use crate::CONFIG_PATH;
 use colored::Colorize;
 use serde_json;
-use std::{
-    fmt::Display,
-    fs,
-    io::{self, Write},
-    str::FromStr,
+use std::{collections::HashMap, fs};
+use vnv::{
+    parsing::config,
+    util::{printf, read_yes_no, request_value, Answer},
 };
-use vnv::parsing::config;
+
+const INIT_MESSAGE: &str = r#"                  
+__   ___ ____   __
+\ \ / / '_ \ \ / /
+ \ V /| | | \ V / 
+  \_/ |_| |_|\_/  
+                  
+"#;
 
 const DEFAULT_SRC: &str = r#"@matches("bar")
 FOO="bar"
@@ -21,17 +27,12 @@ const DEFAULT_TEMPLATE: &str = r#"# This file should be committed to source cont
 FOO
 "#;
 
+const DEFAULT_GIT_IGNORE: &str = r#".vnv
+.env"#;
+
 /// Initializes the config file and optionally a template file
 pub fn default() {
-    println!(
-        r#"                  
-    __   ___ ____   __
-    \ \ / / '_ \ \ / /
-     \ V /| | | \ V / 
-      \_/ |_| |_|\_/  
-                      
-"#
-    );
+    println!("{INIT_MESSAGE}");
 
     let mut config = config::Options::new();
 
@@ -42,23 +43,22 @@ pub fn default() {
     let mut fresh_file = false;
 
     if result.is_ok() {
-        print(&format!(
-            "Overwrite source file y/N? '{}' : ",
-            "N".dimmed().italic()
+        printf(&format!(
+            "Overwrite source file y/N? {}",
+            "N".truecolor(125, 125, 125)
         ));
 
-        let mut input = String::new();
-        io::stdin().read_line(&mut input).unwrap();
+        printf("\x1B[1D");
 
-        match input.trim().to_lowercase().as_str() {
-            "y" | "yes" => {
+        match read_yes_no() {
+            Answer::Yes => {
                 println!("Overwriting source file at {}", config.src);
 
                 fs::write(&config.src, DEFAULT_SRC).unwrap();
 
                 fresh_file = true;
             }
-            _ => {}
+            Answer::No => {}
         }
     } else {
         println!("Creating source file at {}", config.src);
@@ -69,37 +69,34 @@ pub fn default() {
     }
 
     if fresh_file {
-        let mut input = String::new();
-
-        print(&format!(
-            "Use a template file y/N? '{}' :",
-            "N".dimmed().italic()
+        printf(&format!(
+            "Use a template file y/N? {}",
+            "y".truecolor(125, 125, 125)
         ));
 
-        io::stdin().read_line(&mut input).unwrap();
+        printf("\x1B[1D");
 
-        match input.trim().to_lowercase().as_str() {
-            "y" | "yes" => {
+        match read_yes_no() {
+            Answer::Yes => {
                 request_value(&mut config.template, "Where is the template file?");
 
                 let result = fs::read(&config.template);
 
                 if result.is_ok() {
-                    print(&format!(
-                        "Overwrite template file y/N? '{}' : ",
-                        "N".dimmed().italic()
+                    printf(&format!(
+                        "Overwrite template file y/N? {}",
+                        "N".truecolor(125, 125, 125)
                     ));
 
-                    let mut input = String::new();
-                    io::stdin().read_line(&mut input).unwrap();
+                    printf("\x1B[1D");
 
-                    match input.trim().to_lowercase().as_str() {
-                        "y" | "yes" => {
+                    match read_yes_no() {
+                        Answer::Yes => {
                             println!("Overwriting template file at {}", config.template);
 
                             fs::write(&config.template, DEFAULT_TEMPLATE).unwrap();
                         }
-                        _ => {}
+                        Answer::No => {}
                     }
                 } else {
                     println!("Creating template file at {}", config.template);
@@ -107,7 +104,43 @@ pub fn default() {
                     fs::write(&config.template, DEFAULT_TEMPLATE).unwrap();
                 }
             }
-            _ => {}
+            Answer::No => {}
+        }
+    }
+
+    match fs::read(".gitignore") {
+        Ok(content) => {
+            let mut content = String::from_utf8(content).unwrap();
+            let lines = content.split("\n");
+
+            let needs_ignore = vec![".env", ".vnv"];
+
+            let mut ignore_map = HashMap::new();
+
+            for file in needs_ignore {
+                ignore_map.insert(file, 0);
+            }
+
+            for line in lines {
+                if ignore_map.contains_key(line.trim()) {
+                    ignore_map.remove(line.trim());
+                }
+            }
+
+            for (k, _) in ignore_map {
+                content = content.trim().to_owned();
+
+                content.push_str(&format!("\n{k}"));
+
+                println!("Adding {k} to .gitignore...");
+            }
+
+            fs::write(".gitignore", content).unwrap();
+        }
+        Err(_) => {
+            println!("Creating .gitignore...");
+
+            fs::write(".gitignore", DEFAULT_GIT_IGNORE).unwrap();
         }
     }
 
@@ -116,30 +149,4 @@ pub fn default() {
     println!("Writing preferences to {CONFIG_PATH}.");
 
     fs::write(&CONFIG_PATH, config_content).unwrap();
-}
-
-fn request_value<T>(value: &mut T, message: &str)
-where
-    T: FromStr + Display,
-    <T as FromStr>::Err: std::fmt::Debug,
-{
-    print(&format!(
-        "{message} '{}': ",
-        value.to_string().dimmed().italic()
-    ));
-
-    let mut input = String::new();
-
-    io::stdin().read_line(&mut input).unwrap();
-
-    input = input.trim().to_string();
-
-    if !input.is_empty() {
-        *value = input.parse::<T>().unwrap();
-    }
-}
-
-fn print(message: &str) {
-    print!("{message}");
-    io::stdout().flush().unwrap();
 }

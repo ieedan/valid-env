@@ -1,25 +1,23 @@
-use std::{fs, path::Path, time::Instant};
 use colored::Colorize;
-use vnv::{parsing::{self, config}, util};
+use std::{fs, time::Instant};
+use vnv::{
+    parsing::{self, config},
+    util,
+};
 
 #[derive(Debug)]
 pub struct Options {
-    pub default: config::Options
+    pub default: config::Options,
 }
 
 pub fn default(options: Options) {
-    let file = options.default.src;
     let cloak = options.default.cloak;
-    
+
     let now = Instant::now();
 
-    println!("Checking '{file}'...");
+    println!("Checking '{}'...", options.default.src);
 
-    let path = Path::new(&file.trim())
-        .canonicalize()
-        .expect("Must provide valid path.");
-
-    let file_contents = fs::read(path).expect("Error reading file");
+    let file_contents = fs::read(&options.default.src).expect("Error reading file");
 
     let content = String::from_utf8(file_contents).unwrap();
 
@@ -140,12 +138,13 @@ pub fn default(options: Options) {
             let ascii_arrow = "-->".blue();
             let error_message = format!(
                 r#"{ascii_error}: {}
-{ascii_arrow} {file}:{}:{}
+{ascii_arrow} {}:{}:{}
      {ascii_line}
 {}   {ascii_line}  {line}
      {ascii_line}  {}         
 "#,
                 error_str.bold(),
+                options.default.src,
                 key.position.line,
                 key.position.column,
                 util::number_pad(key.position.line, 2).to_string().blue(),

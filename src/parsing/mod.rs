@@ -1,6 +1,6 @@
-use std::collections::HashMap;
 use crate::decorators::{self, DecoratorValidationResult, ValidationError};
 use crate::util::trim_quotes;
+use std::collections::HashMap;
 
 pub mod config;
 
@@ -38,6 +38,7 @@ pub struct Key {
     pub position: FilePosition,
     pub valid: bool,
     pub errors: Vec<ValidationError>,
+    pub constraints: Vec<decorators::DecoratorParseResult>,
 }
 
 #[derive(Debug, Clone)]
@@ -133,6 +134,8 @@ pub fn parse(content: &str) -> ParseResult {
 
                 let mut errors: Vec<ValidationError> = Vec::new();
 
+                let mut constraints: Vec<decorators::DecoratorParseResult> = Vec::new();
+
                 // Validate with decorators
                 for (dec, pos) in current_decorators {
                     let decorator_info = decorators::parse(&dec);
@@ -141,6 +144,8 @@ pub fn parse(content: &str) -> ParseResult {
 
                     match found_decorator {
                         Some(d) => {
+                            constraints.push(decorator_info.to_owned());
+
                             let result = (d.validator)(value_type.to_owned(), decorator_info.value);
 
                             if let DecoratorValidationResult::Error(errs) = result {
@@ -163,11 +168,12 @@ pub fn parse(content: &str) -> ParseResult {
 
                 let key = Key {
                     key: current_key.0.to_owned(),
-                    scope: scope,
                     valid: errors.len() == 0,
                     value: value_type,
-                    errors: errors,
                     position: current_key.1.to_owned(),
+                    scope,
+                    constraints,
+                    errors,
                 };
 
                 if keys.contains_key(&key.key) {
