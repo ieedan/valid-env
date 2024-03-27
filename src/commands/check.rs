@@ -1,23 +1,25 @@
 use colored::Colorize;
 use std::{fs, time::Instant};
 use vnv::{
-    parsing::{self, config},
+    parsing::{self, config, ValueType},
     util,
 };
 
 #[derive(Debug)]
 pub struct Options {
-    pub default: config::Options,
+    pub config: config::Options,
 }
 
+// src file does not match template file. If this is intended you can run `vnv template` to re-create the template file based on the src file.
+
 pub fn default(options: Options) {
-    let cloak = options.default.cloak;
+    let cloak = options.config.cloak;
 
     let now = Instant::now();
 
-    println!("Checking '{}'...", options.default.src);
+    println!("Checking '{}'...", options.config.src);
 
-    let file_contents = fs::read(&options.default.src).expect("Error reading file");
+    let file_contents = fs::read(&options.config.src).expect("Error reading file");
 
     let content = String::from_utf8(file_contents).unwrap();
 
@@ -40,21 +42,21 @@ pub fn default(options: Options) {
             let mut error_squiggles = String::new();
 
             let string_val = match &key.value {
-                vnv::parsing::ValueType::Number(v) => v.to_string(),
-                vnv::parsing::ValueType::String(v) => format!("\"{v}\""),
-                vnv::parsing::ValueType::StringArray(v) => format!("{:?}", v),
-                vnv::parsing::ValueType::NumberArray(v) => format!("{:?}", v),
+                ValueType::Number(v) => v.to_string(),
+                ValueType::String(v) => format!("\"{v}\""),
+                ValueType::StringArray(v) => format!("{:?}", v),
+                ValueType::NumberArray(v) => format!("{:?}", v),
             };
 
             for (i, l) in lines.into_iter().enumerate() {
                 if i == index as usize {
                     if let Some(val) = err.value {
                         let string_problem_val = match val {
-                            vnv::parsing::ValueType::Number(v) => v.to_string(),
-                            vnv::parsing::ValueType::String(v) => format!("\"{v}\""),
+                            ValueType::Number(v) => v.to_string(),
+                            ValueType::String(v) => format!("\"{v}\""),
                             // These wont ever be hit but need to be implemented anyways
-                            vnv::parsing::ValueType::StringArray(v) => format!("{:?}", v),
-                            vnv::parsing::ValueType::NumberArray(v) => format!("{:?}", v),
+                            ValueType::StringArray(v) => format!("{:?}", v),
+                            ValueType::NumberArray(v) => format!("{:?}", v),
                         };
 
                         let start_index = string_val.find(&string_problem_val);
@@ -144,7 +146,7 @@ pub fn default(options: Options) {
      {ascii_line}  {}         
 "#,
                 error_str.bold(),
-                options.default.src,
+                options.config.src,
                 key.position.line,
                 key.position.column,
                 util::number_pad(key.position.line, 2).to_string().blue(),

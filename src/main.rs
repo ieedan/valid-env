@@ -14,6 +14,8 @@ struct Cli {
 
 pub const CONFIG_PATH: &str = ".vnv.config.json";
 
+pub const DEFAULT_TEMPLATE_PATH: &str = "template.vnv";
+
 fn main() {
     let args = Cli::parse();
 
@@ -30,16 +32,16 @@ fn main() {
                 config.cloak = true;
             }
 
-            let options = check::Options { default: config };
+            let options = check::Options { config };
             commands::check(options);
         }
         Commands::Build {} => {
-            let options = build::Options { default: config };
+            let options = build::Options { config };
             commands::build(options);
         }
         Commands::Init {} => commands::init(),
         Commands::Template { yes } => {
-            let options = template::Options { default: config, yes };
+            let options = template::Options { config, yes };
             commands::template(options);
         }
     }

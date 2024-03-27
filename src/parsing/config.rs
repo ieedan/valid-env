@@ -6,7 +6,7 @@ use serde_json::Value;
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Options {
     pub src: String,
-    pub template: String,
+    pub template: Option<String>,
     pub cloak: bool,
     pub build: Build
 }
@@ -22,7 +22,7 @@ impl Options {
     pub fn new() -> Self {
         Options {
             src: String::from(".vnv"),
-            template: String::from("template.vnv"),
+            template: None,
             cloak: false,
             build: Build {
                 output: String::from(".env"),
@@ -43,10 +43,14 @@ pub fn parse(path: &str) -> Options {
         let object: Result<Value, _> = serde_json::from_str(&json);
 
         if let Ok(object) = object {
+            let mut template: Option<String> = None;
+            if !object["template"].is_null() {
+                template = Some(object["template"].as_str().unwrap().to_string());
+            }
             // map the values to the options object
             return Options {
                 src: object["src"].as_str().unwrap_or(&defaults.src).to_string(),
-                template: object["template"].as_str().unwrap_or(&defaults.template).to_string(),
+                template: template,
                 cloak: object["cloak"].to_string().parse().unwrap_or(false),
                 build: Build {
                     output: object["build"]["output"].as_str().unwrap_or(&defaults.build.output).to_string(),

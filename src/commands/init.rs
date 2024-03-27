@@ -1,4 +1,4 @@
-use crate::{commands, CONFIG_PATH};
+use crate::{commands, CONFIG_PATH, DEFAULT_TEMPLATE_PATH};
 use colored::Colorize;
 use serde_json;
 use std::{collections::HashMap, fs};
@@ -40,16 +40,12 @@ pub fn default() {
 
     let result = fs::read(&config.src);
 
-    let mut fresh_file = false;
-
     if result.is_ok() {
         match ask_yes_no("Overwrite source file", Answer::No) {
             Answer::Yes => {
                 println!("Overwriting source file at {}", config.src);
 
                 fs::write(&config.src, DEFAULT_SRC).unwrap();
-
-                fresh_file = true;
             }
             Answer::No => {}
         }
@@ -57,37 +53,36 @@ pub fn default() {
         println!("Creating source file at {}", config.src);
 
         fs::write(&config.src, DEFAULT_SRC).unwrap();
-
-        fresh_file = true;
     }
 
-    if fresh_file {
-        let template_options = commands::template::Options {
-            default: config.to_owned(),
-            yes: true, // this way we don't ask twice
-        };
+    let template_options = commands::template::Options {
+        config: config.to_owned(),
+        yes: true, // this way we don't ask twice
+    };
 
-        match ask_yes_no("Use a template file", Answer::Yes) {
-            Answer::Yes => {
-                request_value(&mut config.template, "Where is the template file?");
+    match ask_yes_no("Use a template file", Answer::Yes) {
+        Answer::Yes => {
+            let mut config_template = String::from(DEFAULT_TEMPLATE_PATH);
+            request_value(&mut config_template, "Where is the template file?");
 
-                let result = fs::read(&config.template);
+            let result = fs::read(&config_template);
 
-                if result.is_ok() {
-                    printf(&format!(" y/N? {}", "N".truecolor(125, 125, 125)));
+            config.template = Some(config_template);
 
-                    printf("\x1B[1D");
+            if result.is_ok() {
+                printf(&format!(" y/N? {}", "N".truecolor(125, 125, 125)));
 
-                    match ask_yes_no("Overwrite template file", Answer::No) {
-                        Answer::Yes => commands::template(template_options),
-                        Answer::No => {}
-                    }
-                } else {
-                    commands::template(template_options);
+                printf("\x1B[1D");
+
+                match ask_yes_no("Overwrite template file", Answer::No) {
+                    Answer::Yes => commands::template(template_options),
+                    Answer::No => {}
                 }
+            } else {
+                commands::template(template_options);
             }
-            Answer::No => {}
         }
+        Answer::No => {}
     }
 
     request_value(&mut config.build.output, "Where to write the build output?");
