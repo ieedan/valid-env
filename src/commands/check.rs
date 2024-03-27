@@ -1,4 +1,5 @@
 use colored::Colorize;
+use core::panic;
 use std::{fs, time::Instant};
 use vnv::{
     parsing::{self, config, ValueType},
@@ -8,6 +9,7 @@ use vnv::{
 #[derive(Debug)]
 pub struct Options {
     pub config: config::Options,
+    pub template: bool,
 }
 
 // src file does not match template file. If this is intended you can run `vnv template` to re-create the template file based on the src file.
@@ -19,13 +21,11 @@ pub fn default(options: Options) {
 
     println!("Checking '{}'...", options.config.src);
 
-    let file_contents = fs::read(&options.config.src).expect("Error reading file");
+    let src_contents = fs::read(&options.config.src).expect("Error reading file");
 
-    let content = String::from_utf8(file_contents).unwrap();
+    let content = String::from_utf8(src_contents).unwrap();
 
     let result = parsing::parse(&content);
-
-    let elapsed = now.elapsed();
 
     for key in result.keys {
         let mut status = String::new();
@@ -109,8 +109,7 @@ pub fn default(options: Options) {
                 }
             }
 
-            // If someone knows why this shows a warning please help
-            let mut error_str = String::new();
+            let error_str: String;
 
             if cloak {
                 let trimmed_val = util::trim_quotes(&string_val);
@@ -155,6 +154,8 @@ pub fn default(options: Options) {
             println!("{error_message}");
         }
     }
+
+    let elapsed = now.elapsed();
 
     if !result.valid {
         println!("Check completed in {:.2?}", elapsed);

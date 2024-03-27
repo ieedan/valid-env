@@ -49,7 +49,7 @@ pub struct Key {
     pub position: FilePosition,
     pub valid: bool,
     pub errors: Vec<ValidationError>,
-    pub constraints: Vec<decorators::DecoratorParseResult>,
+    pub decorators: Vec<decorators::DecoratorParseResult>,
 }
 
 #[derive(Debug, Clone)]
@@ -183,7 +183,7 @@ pub fn parse(content: &str) -> ParseResult {
                     value: value_type,
                     position: current_key.1.to_owned(),
                     scope,
-                    constraints,
+                    decorators: constraints,
                     errors,
                 };
 
@@ -221,6 +221,10 @@ pub fn parse(content: &str) -> ParseResult {
         result.keys.push(v);
     }
 
+    if result.errors.len() > 0 {
+        result.valid = false;
+    }
+
     // Sorts the keys back to original order
     // since the hash map doesn't maintain the order
     result
@@ -231,7 +235,7 @@ pub fn parse(content: &str) -> ParseResult {
 }
 
 /// Coerces the string value into a value type
-fn coerce_value_type(val: &str) -> ValueType {
+pub fn coerce_value_type(val: &str) -> ValueType {
     // get value type
     if val.parse::<f64>().is_ok() {
         // number

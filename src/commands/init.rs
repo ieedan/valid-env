@@ -1,10 +1,10 @@
-use crate::{commands, CONFIG_PATH, DEFAULT_TEMPLATE_PATH};
+use crate::CONFIG_PATH;
 use colored::Colorize;
 use serde_json;
 use std::{collections::HashMap, fs};
 use vnv::{
     parsing::config,
-    util::{ask_yes_no, printf, request_value, Answer},
+    util::{ask_yes_no, request_value, Answer},
 };
 
 const INIT_MESSAGE: &str = r#"                  
@@ -53,36 +53,6 @@ pub fn default() {
         println!("Creating source file at {}", config.src);
 
         fs::write(&config.src, DEFAULT_SRC).unwrap();
-    }
-
-    let template_options = commands::template::Options {
-        config: config.to_owned(),
-        yes: true, // this way we don't ask twice
-    };
-
-    match ask_yes_no("Use a template file", Answer::Yes) {
-        Answer::Yes => {
-            let mut config_template = String::from(DEFAULT_TEMPLATE_PATH);
-            request_value(&mut config_template, "Where is the template file?");
-
-            let result = fs::read(&config_template);
-
-            config.template = Some(config_template);
-
-            if result.is_ok() {
-                printf(&format!(" y/N? {}", "N".truecolor(125, 125, 125)));
-
-                printf("\x1B[1D");
-
-                match ask_yes_no("Overwrite template file", Answer::No) {
-                    Answer::Yes => commands::template(template_options),
-                    Answer::No => {}
-                }
-            } else {
-                commands::template(template_options);
-            }
-        }
-        Answer::No => {}
     }
 
     request_value(&mut config.build.output, "Where to write the build output?");

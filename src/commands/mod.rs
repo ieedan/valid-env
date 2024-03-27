@@ -12,10 +12,6 @@ pub mod init;
 
 pub use init::default as init;
 
-pub mod template;
-
-pub use template::default as template;
-
 #[derive(Subcommand, Debug)]
 pub enum Commands {
     /// Validate the .vnv file
@@ -27,15 +23,13 @@ pub enum Commands {
         /// Will hide the values in the ".vnv" in the std out
         #[clap(short, long, action = clap::ArgAction::SetTrue)]
         cloak: bool,
+
+        /// Will only check the template file good for git based CI
+        #[clap(short, long, action = clap::ArgAction::SetTrue)]
+        template: bool,
     },
     /// Convert the .vnv file to a valid .env file
     Build {},
     /// Initializes .vnv by creating the source file and settings file as well as configuring your .gitignore
     Init {},
-    /// Generates a template file from the current .vnv file
-    Template { 
-        /// Bypasses question to overwrite template file
-       #[clap(short, long, action = clap::ArgAction::SetTrue)]
-       yes: bool, 
-    }
 }

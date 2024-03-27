@@ -16,6 +16,7 @@ pub fn default(options: Options) {
 
     commands::check(check::Options {
         config: options.config.to_owned(),
+        template: false
     });
 
     let result = parsing::parse(&content);
@@ -31,7 +32,7 @@ pub fn default(options: Options) {
 
     for key in result.keys {
         if !options.config.build.minify {
-            for constraint in key.constraints {
+            for constraint in key.decorators {
                 let constraint_str = match constraint.value {
                     DecoratorValue::String(v) => format!("@{}(\"{}\")", constraint.key, v),
                     DecoratorValue::Integer(v) => format!("@{}({})", constraint.key, v),
