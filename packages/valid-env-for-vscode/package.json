@@ -2,7 +2,7 @@
 	"name": "valid-env",
 	"displayName": "valid-env for VS Code",
 	"description": "Adds language support for .vnv files",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"engines": {
 		"vscode": "^1.87.0"
 	},
@@ -13,7 +13,7 @@
 	"repository": {
 		"url": "https://github.com/ieedan/valid-env"
 	},
-	"icon": "icons/logo.webp",
+	"icon": "icons/logo.png",
 	"contributes": {
 		"languages": [
 			{
