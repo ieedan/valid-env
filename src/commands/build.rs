@@ -2,6 +2,8 @@ use std::fs;
 
 use vnv::{decorators::DecoratorValue, parsing::{self, config}};
 
+use crate::commands::{self, check};
+
 #[derive(Debug)]
 pub struct Options {
     pub config: config::Options,
@@ -12,12 +14,19 @@ pub fn default(options: Options) {
 
     let content = String::from_utf8(file_content).unwrap();
 
+    commands::check(check::Options {
+        config: options.config.to_owned(),
+    });
+
     let result = parsing::parse(&content);
 
     let mut file = String::new();
 
     if !options.config.build.minify {
-        file.push_str(&format!("# This file was generated from '{}' by vnv.\n\n", options.config.src))
+        file.push_str(&format!(
+            "# This file was generated from '{}' by vnv.\n\n",
+            options.config.src
+        ))
     }
 
     for key in result.keys {
@@ -37,5 +46,8 @@ pub fn default(options: Options) {
 
     fs::write(&options.config.build.output, file).unwrap();
 
-    println!("Completed build wrote output to {}.", options.config.build.output)
+    println!(
+        "Completed build wrote output to {}.",
+        options.config.build.output
+    )
 }
