@@ -8,15 +8,26 @@ A decorator enhanced .env syntax for validating your environment variables all w
 # Must be min 10 for name of domain and domain postfix Ex: (https://d.t)
 @min(10)
 ALLOWED_ORIGINS=["https://github.com", "https://aidanbleser.com"]
+
 @min(1000)
 @public
+@dev
 POLLING_INTERVAL=5000
+
+@min(1000)
+@public
+@prod
+POLLING_INTERVAL=5000
+
 @min(1024)
 @max(49151)
 @public
 PORT=3000
+
+@dev
 @min(1)
 API_KEY="g74Ed6Z6txrEiGX9rSybQxWfVCFDfvAvhuOBrZvsTjfuGNrNt1jyjHfhQPSdzNh5kf6juBsGfRhjFpyfJEl8L2pw39DCs2A2yJKLfWht6sY7HCalLNpDNWcHbWip8Jpc"
+
 # IP Address regex thanks ChatGPT
 @matches("^(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
 ALLOWED_IPS=["172.16.100.10", "192.168.1.1"]
@@ -73,6 +84,8 @@ valid-env extends the .env syntax with decorators that allow you to validate and
 ### Decorators
 - [@public](#public)
 - [@private](#private)
+- [@dev](#dev)
+- [@prod](#prod)
 - [@min](#min)
 - [@max](#max)
 - [@startsWith](#startsWith)
@@ -102,6 +115,36 @@ Usage:
 ```ruby
 @private
 SECRET="this is a super private secret"
+```
+
+#### Allowed Variable Types
+- String
+- Number
+- String[]
+- Number[]
+
+### @dev
+Changes the environment of the environment variable to **dev**;
+
+Usage:
+```ruby
+@dev
+PORT=3000
+```
+
+#### Allowed Variable Types
+- String
+- Number
+- String[]
+- Number[]
+
+### @prod
+Changes the environment of the environment variable to **prod**;
+
+Usage:
+```ruby
+@prod
+PORT=3000
 ```
 
 #### Allowed Variable Types
@@ -218,3 +261,59 @@ ADMIN_USERNAMES=["johnothy", "jimnothy"]
 Some environment variable handlers allow you to scope your variables to be public or private. (For example [SvelteKit](https://learn.svelte.dev/tutorial/env-static-private)). This allows you to separate privileges to use environment variables between server and client code. By default all variables are scoped as **private** but can be marked public using the `@public` decorator.
 
 > Note: While the `@private` decorator is valid syntax and listed as a decorator it does not change the scope of the variable. However it can be useful for annotating something that should be treated as sensitive and should not be changed to public.
+
+## Environments 
+Sometimes you want to use different values for your variables for different environments or even different variables entirely. This is made possible with the [@dev](#dev) and [@prod](#prod) decorators.
+
+Here are a few examples:
+
+Different Value for same variable
+```ruby
+@dev
+PORT=3000
+@prod
+PORT=8080
+```
+
+Omit a variable from prod
+```ruby
+@dev
+KEY="..."
+```
+
+Omit a variable from dev
+```ruby
+@prod
+KEY="..."
+```
+
+> Keep in mind any keys not marked with `@prod` or `@dev` will be included in all environments.
+
+### How to specify the environment
+Pass the `--prod` or `--dev` flag to the check/build command. By default the environment is set to `dev` so theres no need to supply the `--dev` flag.
+
+.vnv file:
+```ruby
+@dev
+PORT=3000
+@prod
+PORT=8080
+```
+
+Output:
+```bash
+C:\Users\aidan\project> vnv build --dev
+Checking '.vnv'...
+PORT ✔️
+PORT ⏭️
+Completed in 1.24ms
+Completed build wrote output to .env.
+```
+
+Generated .env file: 
+```ruby
+# This file was generated from '.vnv' by vnv.
+
+# @dev
+PORT=3000
+```

@@ -1,12 +1,13 @@
 use std::fs;
 
-use vnv::{decorators::DecoratorValue, parsing::{self, config}};
+use vnv::{decorators::DecoratorValue, parsing::{self, config, Environment}};
 
 use crate::commands::{self, check};
 
 #[derive(Debug)]
 pub struct Options {
     pub config: config::Options,
+    pub environment: Environment,
 }
 
 pub fn default(options: Options) {
@@ -16,7 +17,7 @@ pub fn default(options: Options) {
 
     commands::check(check::Options {
         config: options.config.to_owned(),
-        template: false
+        environment: options.environment.to_owned()
     });
 
     let result = parsing::parse(&content);
@@ -31,6 +32,13 @@ pub fn default(options: Options) {
     }
 
     for key in result.keys {
+        let environment_does_not_match = key.environment != options.environment;
+        let key_environment_not_all = key.environment != Environment::All;
+
+        if environment_does_not_match && key_environment_not_all {
+            continue; // skip this key
+        }
+
         if !options.config.build.minify {
             for constraint in key.decorators {
                 let constraint_str = match constraint.value {

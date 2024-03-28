@@ -2,14 +2,14 @@ use colored::Colorize;
 use core::panic;
 use std::{fs, time::Instant};
 use vnv::{
-    parsing::{self, config, ValueType},
+    parsing::{self, config, Environment, ValueType},
     util,
 };
 
 #[derive(Debug)]
 pub struct Options {
     pub config: config::Options,
-    pub template: bool,
+    pub environment: Environment,
 }
 
 // src file does not match template file. If this is intended you can run `vnv template` to re-create the template file based on the src file.
@@ -27,11 +27,22 @@ pub fn default(options: Options) {
 
     let result = parsing::parse(&content);
 
+    let mut valid = true; 
+
     for key in result.keys {
+        let environment_does_not_match = key.environment != options.environment;
+        let key_environment_not_all = key.environment != Environment::All;
+
+        if environment_does_not_match && key_environment_not_all {
+            println!("{} ⏭️", key.key.truecolor(125, 125, 125));
+            continue; // skip this key
+        }
+
         let mut status = String::new();
         if key.valid {
             status.push_str("✔️");
         } else {
+            valid = false;
             status.push_str("❌");
         }
         println!("{} {status}", key.key);
@@ -157,7 +168,7 @@ pub fn default(options: Options) {
 
     let elapsed = now.elapsed();
 
-    if !result.valid {
+    if !valid {
         println!("Check completed in {:.2?}", elapsed);
         panic!("Check failed!");
     } else {

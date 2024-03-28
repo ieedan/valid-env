@@ -3,11 +3,11 @@ use std::fs;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Options {
     pub src: String,
     pub cloak: bool,
-    pub build: Build
+    pub build: Build,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

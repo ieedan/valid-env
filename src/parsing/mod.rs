@@ -22,6 +22,23 @@ pub enum Scope {
     Public,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Environment {
+    All,
+    Dev,
+    Prod
+}
+
+impl Environment {
+    pub fn to_string(&self) -> String {
+        match self {
+            Environment::All => String::from("all"),
+            Environment::Dev => String::from("dev"),
+            Environment::Prod => String::from("prod"),
+        }
+    } 
+}
+
 #[derive(Debug, Clone)]
 pub enum ValueType {
     Number(f64),
@@ -45,6 +62,7 @@ impl ValueType {
 pub struct Key {
     pub key: String,
     pub scope: Scope,
+    pub environment: Environment,
     pub value: ValueType,
     pub position: FilePosition,
     pub valid: bool,
@@ -129,7 +147,7 @@ pub fn parse(content: &str) -> ParseResult {
             is_array = false;
         } else if c == '#' && !is_value && !is_array && !is_string {
             is_comment = true;
-        } else if !is_comment && !(c == '\n' && !is_string) {
+        } else if !is_comment && !((c == '\n' || c == '\r') && !is_string) {
             current.push_str(&c.to_string());
         }
 
@@ -141,6 +159,7 @@ pub fn parse(content: &str) -> ParseResult {
                 is_comment = false;
             } else if is_value {
                 let mut scope = Scope::Private;
+                let mut environment = Environment::All;
 
                 let value_type = coerce_value_type(&current.trim());
 
@@ -169,6 +188,14 @@ pub fn parse(content: &str) -> ParseResult {
                             if d.name == "public" {
                                 scope = Scope::Public;
                             }
+
+                            if d.name == "prod" {
+                                environment = Environment::Prod;
+                            }
+
+                            if d.name == "dev" {
+                                environment = Environment::Dev;
+                            }
                         }
                         None => {
                             let error_message =
@@ -186,16 +213,17 @@ pub fn parse(content: &str) -> ParseResult {
                     scope,
                     decorators: constraints,
                     errors,
+                    environment
                 };
 
-                if keys.contains_key(&key.key) {
-                    let error_message = format!("Duplicate key '{}'", key.key);
+                if let Some(k) = keys.get(&key.key) {
+                    let error_message = format!("Duplicate key '{}' in the {} environment", k.key, k.environment.to_string());
                     result
                         .warnings
                         .push(ParseError::new(error_message, current_key.1.to_owned()));
                 }
 
-                keys.insert(key.key.to_owned(), key);
+                keys.insert(format!("{}-{}", key.key.to_owned(), key.environment.to_string()), key);
 
                 current_key = (String::new(), FilePosition::new());
                 current_decorators = Vec::new();
