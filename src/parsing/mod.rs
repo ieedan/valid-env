@@ -127,8 +127,9 @@ pub fn parse(content: &str) -> ParseResult {
             is_array = true;
         } else if c == ']' && is_value && is_array && !is_string {
             is_array = false;
-        } else if !is_comment {
-            // no need to add comments to current
+        } else if c == '#' && !is_value && !is_array && !is_string {
+            is_comment = true;
+        } else if !is_comment && !(c == '\n' && !is_string) {
             current.push_str(&c.to_string());
         }
 
@@ -199,6 +200,8 @@ pub fn parse(content: &str) -> ParseResult {
                 current_key = (String::new(), FilePosition::new());
                 current_decorators = Vec::new();
                 is_value = false;
+                is_array = false;
+                is_string = false;
             }
 
             // clear no matter what
