@@ -2,7 +2,6 @@
 # If you are contributing to valid-env this is a great way to test things out
 
 @startsWith("https://")
-# Must be min 10 for name of domain and domain postfix Ex: (https://d.t)
 @min(10)
 ALLOWED_ORIGINS=["https://github.com", "https://aidanbleser.com"]
 
@@ -14,7 +13,7 @@ POLLING_INTERVAL=5000
 @min(1000)
 @public
 @prod
-POLLING_INTERVAL=5000
+POLLING_INTERVAL=10000
 
 @min(1024)
 @max(49151)
