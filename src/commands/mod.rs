@@ -24,12 +24,18 @@ pub enum Commands {
         #[clap(short, long, action = clap::ArgAction::SetTrue)]
         cloak: bool,
 
-        /// Will only check the template file good for git based CI
         #[clap(short, long, action = clap::ArgAction::SetTrue)]
-        template: bool,
+        dev: bool,
+        #[clap(short, long, action = clap::ArgAction::SetTrue)]
+        prod: bool,
     },
     /// Convert the .vnv file to a valid .env file
-    Build {},
+    Build {
+        #[clap(short, long, action = clap::ArgAction::SetTrue)]
+        dev: bool,
+        #[clap(short, long, action = clap::ArgAction::SetTrue)]
+        prod: bool,
+    },
     /// Initializes .vnv by creating the source file and settings file as well as configuring your .gitignore
     Init {},
 }

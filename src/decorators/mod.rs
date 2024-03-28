@@ -79,6 +79,18 @@ pub fn get() -> HashMap<String, Decorator> {
             "public",
             Box::new(|_value, _decorator_value| DecoratorValidationResult::Ok),
         ),
+        // ====== Dev ======
+        // This will modify the environment of the .env variable to development
+        Decorator::new(
+            "dev",
+            Box::new(|_value, _decorator_value| DecoratorValidationResult::Ok),
+        ),
+        // ====== Prod ======
+        // This will modify the environment of the .env variable to production
+        Decorator::new(
+            "prod",
+            Box::new(|_value, _decorator_value| DecoratorValidationResult::Ok),
+        ),
         // ====== min ======
         // min compares the decorator value to the length of the string or the size of the number
         // If the value is a string or number array each value in the array is compared
