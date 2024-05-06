@@ -1,7 +1,14 @@
 [package]
 name = "vnv"
-version = "0.0.1"
+version = "0.1.0"
+authors = ["Aidan Bleser"]
 edition = "2021"
+readme = "README.md"
+documentation = "https://github.com/ieedan/valid-env"
+homepage = "https://github.com/ieedan/valid-env"
+description = "🔒 A decorator enhanced .env syntax for validating your environment variables all within your .env file."
+repository = "https://github.com/ieedan/valid-env"
+keywords = [".env", "validate", "environment", "variables"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
