@@ -8,7 +8,7 @@ documentation = "https://github.com/ieedan/valid-env"
 homepage = "https://github.com/ieedan/valid-env"
 description = "🔒 A decorator enhanced .env syntax for validating your environment variables all within your .env file."
 repository = "https://github.com/ieedan/valid-env"
-keywords = [".env", "validate", "environment", "variables"]
+keywords = ["env", "validate", "environment", "variables"]
 license = "MIT"
 license_file = "LICENSE"
 
