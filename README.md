@@ -2,7 +2,7 @@
   <picture>
       <img src="./logo.png" height="75">
     </picture>
-    <h1 align="center">valid-env</h1>
+    <h1 align="center">vnv</h1>
 </p>
 
 <p align="center">
