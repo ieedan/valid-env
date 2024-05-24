@@ -12,6 +12,10 @@ keywords = ["env", "validate", "environment", "variables"]
 license = "MIT"
 license_file = "LICENSE"
 
+[[bin]]
+name = "vnv"
+path = "src/main.rs"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
