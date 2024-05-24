@@ -64,8 +64,8 @@ jobs:
                 dist/vnv-win64.tar.gz
                 dist/vnv-win32.tar.gz
                 dist/vnv-linux.tar.gz
-        env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Publish npm package
       env:
