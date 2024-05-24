@@ -39,13 +39,17 @@ jobs:
             - name: Install osxcross dependencies
               run: |
                   sudo apt-get install -y clang llvm make libc6-dev-i386 libc6-dev-x32 libssl-dev libbz2-dev curl zlib1g-dev libxml2-dev libxslt1-dev libreadline-dev
+
+            - name: Set up osxcross
+              run: |
                   git clone https://github.com/tpoechtrager/osxcross.git
                   cd osxcross
                   ./tools/get_dependencies.sh
-                  ./tools/gen_sdk_package_pbzx.sh /path/to/MacOSX10.11.sdk.tar.xz
-                  mv MacOSX10.11.sdk.tar.xz tarballs/
+                  wget https://github.com/phracker/MacOSX-SDKs/releases/download/11.3/MacOSX10.11.sdk.tar.xz
+                  tar -xf MacOSX10.11.sdk.tar.xz -C tarballs
                   UNATTENDED=yes ./build.sh
-                  export PATH=$PATH:/path/to/osxcross/target/bin
+              env:
+                  PATH: /home/runner/work/osxcross/target/bin:$PATH
 
             - name: Build macOS
               env:
