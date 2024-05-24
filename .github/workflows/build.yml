@@ -1,71 +1,82 @@
-name: build
+name: Build and Release
 
 on:
     push:
         tags: ["v*.*.*"]
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
-        permissions:
-          contents: write
+  build-and-publish:
+    runs-on: ubuntu-latest
+    permissions:
+        contents: write
 
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-            - name: Install dependencies
-              run: |
-                  sudo apt-get update
-                  sudo apt-get -y install gcc-mingw-w64-x86-64 gcc-mingw-w64-i686
-                  rustup target add x86_64-pc-windows-gnu
-                  rustup target add i686-pc-windows-gnu
-                  rustup target add x86_64-unknown-linux-gnu
+    - name: Set up Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        profile: minimal
 
-                  mkdir dist
-                  mkdir builds
+    - name: Install cross-compilation tools for Windows
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y mingw-w64
 
-            - name: Build Win64
-              run: |
-                  cargo rustc --release --target=x86_64-pc-windows-gnu --bin vnv -- -C linker=x86_64-w64-mingw32-gcc
-                  mkdir builds/vnv-win64
-                  cp target/x86_64-pc-windows-gnu/release/vnv.exe builds/vnv-win64
-                  tar -C builds -czvf dist/vnv-win64.tar.gz vnv-win64
+    - name: Build Linux
+      run: |
+        rustup target add x86_64-unknown-linux-gnu
+        cargo rustc --release --target=x86_64-unknown-linux-gnu
+        mkdir -p builds/vnv-linux
+        cp target/x86_64-unknown-linux-gnu/release/vnv builds/vnv-linux
+        tar -C builds -czvf dist/vnv-linux.tar.gz vnv-linux
 
-            - name: Build Win32
-              run: |
-                  cargo rustc --release --target=i686-pc-windows-gnu --bin vnv -- -C linker=i686-w64-mingw32-gcc -C link-args=-mwindows -C panic=abort
-                  mkdir builds/vnv-win32
-                  cp target/i686-pc-windows-gnu/release/vnv.exe builds/vnv-win32
-                  tar -C builds -czvf dist/vnv-win32.tar.gz vnv-win32
+    - name: Build macOS
+      run: |
+        rustup target add x86_64-apple-darwin
+        cargo rustc --release --target=x86_64-apple-darwin
+        mkdir -p builds/vnv-macos
+        cp target/x86_64-apple-darwin/release/vnv builds/vnv-macos
+        tar -C builds -czvf dist/vnv-macos.tar.gz vnv-macos
 
-            - name: Build Linux
-              run: |
-                  cargo rustc --release --target=x86_64-unknown-linux-gnu
-                  mkdir builds/vnv-linux
-                  cp target/x86_64-unknown-linux-gnu/release/vnv builds/vnv-linux
-                  tar -C builds -czvf dist/vnv-linux.tar.gz vnv-linux
+    - name: Build Windows 64-bit
+      run: |
+        rustup target add x86_64-pc-windows-gnu
+        cargo rustc --release --target=x86_64-pc-windows-gnu
+        mkdir -p builds/vnv-windows-64
+        cp target/x86_64-pc-windows-gnu/release/vnv.exe builds/vnv-windows-64
+        tar -C builds -czvf dist/vnv-windows-64.tar.gz vnv-windows-64
 
-            - name: Upload release
-              uses: softprops/action-gh-release@v1
-              with:
-                  files: |
-                      dist/vnv-win64.tar.gz
-                      dist/vnv-win32.tar.gz
-                      dist/vnv-linux.tar.gz
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build Windows 32-bit
+      run: |
+        rustup target add i686-pc-windows-gnu
+        cargo rustc --release --target=i686-pc-windows-gnu
+        mkdir -p builds/vnv-windows-32
+        cp target/i686-pc-windows-gnu/release/vnv.exe builds/vnv-windows-32
+        tar -C builds -czvf dist/vnv-windows-32.tar.gz vnv-windows-32
 
-            - name: Publish npm package
-              env:
-                  NPM_ACCESS_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
-              run: |
-                  echo "//registry.npmjs.org/:_authToken=$NPM_ACCESS_TOKEN" > ".npmrc"
-                  npm publish --access public
+    - name: Upload release
+      uses: softprops/action-gh-release@v1
+      with:
+            files: |
+                dist/vnv-win64.tar.gz
+                dist/vnv-win32.tar.gz
+                dist/vnv-linux.tar.gz
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Publish cargo package
-              env:
-                  CARGO_ACCESS_TOKEN: ${{ secrets.CARGO_ACCESS_TOKEN }}
-              run: |
-                  cargo login "$CARGO_ACCESS_TOKEN"
-                  cargo publish
+    - name: Publish npm package
+      env:
+        NPM_ACCESS_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+      run: |
+        echo "//registry.npmjs.org/:_authToken=$NPM_ACCESS_TOKEN" > ".npmrc"
+        npm publish --access public
+
+    - name: Publish cargo package
+      env:
+        CARGO_ACCESS_TOKEN: ${{ secrets.CARGO_ACCESS_TOKEN }}
+      run: |
+        cargo login "$CARGO_ACCESS_TOKEN"
+        cargo publish

@@ -1,3 +1,4 @@
 /target
 .env
 .vnv
+node_modules
