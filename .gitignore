@@ -2,3 +2,6 @@
 .env
 .vnv
 node_modules
+builds 
+dist
+.npmrc
