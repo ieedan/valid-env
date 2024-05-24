@@ -1,83 +1,50 @@
-name: Build and Release
+name: build
 
 on:
     push:
         tags: ["v*.*.*"]
 
 jobs:
-    build-and-publish:
+    build:
         runs-on: ubuntu-latest
         permissions:
             contents: write
 
         steps:
-            - name: Checkout code
-              uses: actions/checkout@v2
+            - name: Checkout
+              uses: actions/checkout@v4
 
-            - name: Set up Rust
-              uses: actions-rs/toolchain@v1
-              with:
-                  toolchain: stable
-                  profile: minimal
-
-            - name: Install Dependencies
+            - name: Install dependencies
               run: |
                   sudo apt-get update
-                  sudo apt-get install -y mingw-w64
+                  sudo apt-get -y install gcc-mingw-w64-x86-64 gcc-mingw-w64-i686
+                  rustup target add x86_64-pc-windows-gnu
+                  rustup target add i686-pc-windows-gnu
+                  rustup target add x86_64-unknown-linux-gnu
 
                   mkdir dist
                   mkdir builds
 
+            - name: Build Win64
+              run: |
+                  cargo rustc --release --target=x86_64-pc-windows-gnu --bin vnv -- -C linker=x86_64-w64-mingw32-gcc
+                  mkdir builds/vnv-win64
+                  cp target/x86_64-pc-windows-gnu/release/vnv.exe builds/vnv-win64
+                  tar -C builds -czvf dist/vnv-win64.tar.gz vnv-win64
+
+            - name: Build Win32
+              run: |
+                  cargo rustc --release --target=i686-pc-windows-gnu --bin vnv -- -C linker=i686-w64-mingw32-gcc -C link-args=-mwindows -C panic=abort
+                  mkdir builds/vnv-win32
+                  cp target/i686-pc-windows-gnu/release/vnv.exe builds/vnv-win32
+                  tar -C builds -czvf dist/vnv-win32.tar.gz vnv-win32
+
             - name: Build Linux
               run: |
-                  rustup target add x86_64-unknown-linux-gnu
                   cargo rustc --release --target=x86_64-unknown-linux-gnu
-                  mkdir -p builds/vnv-linux
+                  mkdir builds/vnv-linux
                   cp target/x86_64-unknown-linux-gnu/release/vnv builds/vnv-linux
                   tar -C builds -czvf dist/vnv-linux.tar.gz vnv-linux
-
-            - name: Install osxcross dependencies
-              run: |
-                  sudo apt-get install -y clang llvm make libc6-dev-i386 libc6-dev-x32 libssl-dev libbz2-dev curl zlib1g-dev libxml2-dev libxslt1-dev libreadline-dev
-
-            - name: Set up osxcross
-              run: |
-                  git clone https://github.com/tpoechtrager/osxcross.git
-                  cd osxcross
-                  ./tools/get_dependencies.sh
-                  wget https://github.com/phracker/MacOSX-SDKs/releases/download/11.3/MacOSX10.11.sdk.tar.xz
-                  tar -xf MacOSX10.11.sdk.tar.xz -C tarballs
-                  UNATTENDED=yes ./build.sh
-              env:
-                  PATH: /home/runner/work/osxcross/target/bin:$PATH
-
-            - name: Build macOS
-              env:
-                  CC: x86_64-apple-darwin14-clang
-                  CXX: x86_64-apple-darwin14-clang++
-              run: |
-                  rustup target add x86_64-apple-darwin
-                  cargo rustc --release --target=x86_64-apple-darwin
-                  mkdir -p builds/vnv-macos
-                  cp target/x86_64-apple-darwin/release/vnv builds/vnv-macos
-                  mkdir -p dist
-                  tar -C builds -czvf dist/vnv-macos.tar.gz vnv-macos
-
-            - name: Build Windows 64-bit
-              run: |
-                  rustup target add x86_64-pc-windows-gnu
-                  cargo rustc --release --target=x86_64-pc-windows-gnu
-                  mkdir -p builds/vnv-windows-64
-                  cp target/x86_64-pc-windows-gnu/release/vnv.exe builds/vnv-windows-64
-                  tar -C builds -czvf dist/vnv-windows-64.tar.gz vnv-windows-64
-
-            - name: Build Windows 32-bit
-              run: |
-                  rustup target add i686-pc-windows-gnu
-                  cargo rustc --release --target=i686-pc-windows-gnu
-                  mkdir -p builds/vnv-windows-32
-                  cp target/i686-pc-windows-gnu/release/vnv.exe builds/vnv-windows-32
-                  tar -C builds -czvf dist/vnv-windows-32.tar.gz vnv-windows-32
 
             - name: Upload release
               uses: softprops/action-gh-release@v1
