@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-     <img src="https://github.com/ieedan/valid-env/actions/workflows/continuous-integration.yml/badge.svg?branch=main">
+     <img src="https://github.com/ieedan/valid-env/actions/workflows/ci.yml/badge.svg?branch=main">
 </p>
 
 A decorator enhanced **.env** syntax for validating your environment variables.
