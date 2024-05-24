@@ -11,7 +11,15 @@
 
 A decorator enhanced **.env** syntax for validating your environment variables.
 
-> Note: This is not stable for production use
+```bash
+npm install @iedan/vnv
+```
+
+or
+
+```bash
+cargo install vnv
+```
 
 ## Examples
 

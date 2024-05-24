@@ -1,0 +1,37 @@
+{
+	"name": "@iedan/vnv",
+	"version": "1.0.0",
+	"description": "A decorator enhanced env syntax.",
+	"main": "index.js",
+	"bin": {
+		"vnv": "npm/run.js"
+	},
+	"scripts": {
+		"preinstall": "node npm/scripts.js uninstall",
+		"postinstall": "node npm/scripts.js install"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ieedan/vnv.git"
+	},
+	"keywords": [
+		"vnv",
+		"decorator",
+		"validation",
+		"rust",
+		"environment",
+		"env"
+	],
+	"author": "Aidan Bleser",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/ieedan/vnv/issues"
+	},
+	"homepage": "https://github.com/ieedan/vnv#readme",
+	"dependencies": {
+		"binary-install": "^0.0.1"
+	},
+	"files": [
+		"npm/**/*"
+	]
+}
