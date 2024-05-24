@@ -12,12 +12,14 @@
 A decorator enhanced **.env** syntax for validating your environment variables.
 
 ```bash
+# linux / windows
 npm install @iedan/vnv
 ```
 
 or
 
 ```bash
+# linux / windows/ mac
 cargo install vnv
 ```
 

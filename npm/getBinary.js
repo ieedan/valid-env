@@ -17,9 +17,10 @@ function getPlatform() {
 		return "linux";
 	}
 
-	if (type === "Darwin" && arch === "x64") {
-		return "macos";
-	}
+	// Having issues getting this to compile so just skipping for now
+	// if (type === "Darwin" && arch === "x64") {
+	// 	return "macos";
+	// }
 
 	throw new Error(
 		`Unsupported platform: ${type} ${arch}. Please create an issue at https://github.com/ieedan/vnv#issues`
