@@ -1,6 +1,6 @@
 {
 	"name": "@iedan/vnv",
-	"version": "1.0.0",
+	"version": "1.0.4",
 	"description": "A decorator enhanced env syntax.",
 	"main": "index.js",
 	"bin": {
