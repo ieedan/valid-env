@@ -1,6 +1,6 @@
 [package]
 name = "vnv"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["Aidan Bleser"]
 edition = "2021"
 readme = "README.md"
